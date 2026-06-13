@@ -1,4 +1,4 @@
-# 🐧 Fedora Setup — Lucas (LZL)
+# 🐧 Fedora Setup — Lucas
 
 Script de configuração automática para reinstalação do Fedora Linux.
 Executa uma vez e instala tudo que preciso para trabalhar.
@@ -9,7 +9,7 @@ Executa uma vez e instala tudo que preciso para trabalhar.
 
 ```bash
 # 1. Clone o repositório
-git clone git@github.com:seu-usuario/fedora-setup.git
+git clone https://github.com/lukasalmeida/bash_fedora
 cd fedora-setup
 
 # 2. Edite seu email de SSH antes de rodar (linha SSH_EMAIL no script)
