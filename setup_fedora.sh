@@ -56,7 +56,7 @@ dnf update -y --quiet
 dnf install -y --quiet \
   dnf-plugins-core curl wget unzip zip tar \
   make gcc gcc-c++ openssl openssl-devel \
-  fuse libfuse2                             # necessário para AppImages
+  fuse fuse-libs                           # necessário para AppImages
 ok "Sistema atualizado!"
 
 # ── Brave Browser Nightly ──────────────────────────
@@ -276,6 +276,7 @@ curl -Lo /tmp/docker-desktop.rpm \
 dnf install -y /tmp/docker-desktop.rpm
 rm -f /tmp/docker-desktop.rpm
 
+getent group docker >/dev/null || groupadd docker
 usermod -aG docker "$REAL_USER"
 systemctl --user enable docker-desktop 2>/dev/null || true
 ok "Docker Desktop instalado!"
@@ -453,6 +454,122 @@ info "Instalando OBS Studio..."
 sudo -u "$REAL_USER" flatpak install -y flathub com.obsproject.Studio
 ok "OBS Studio instalado!"
 
+# ════════════════════════════════════════════════════
+# 16. NGINX + SCRIPTS PERSONALIZADOS
+# ════════════════════════════════════════════════════
+section "16/16 — Nginx + Scripts Personalizados"
+
+info "Instalando Nginx..."
+
+dnf install -y --quiet nginx
+
+systemctl enable nginx
+systemctl start nginx
+
+ok "Nginx instalado e iniciado!"
+
+BIN_DIR="/usr/local/bin"
+
+# ─────────────────────────────────────────────
+# adddominio
+# ─────────────────────────────────────────────
+cat > "$BIN_DIR/adddominio" << 'EOF'
+#!/bin/bash
+
+echo "======================================="
+echo " Criador de Domínios Locais para Nginx "
+echo "======================================="
+echo
+
+read -p "Domínio local (ex: olezele.local): " DOMAIN
+read -p "IP do serviço (ex: 127.0.0.1): " IP
+read -p "Porta do serviço (ex: 8080): " PORT
+
+CONF_FILE="/etc/nginx/conf.d/${DOMAIN}.conf"
+
+echo
+echo "Resumo:"
+echo "Domínio: $DOMAIN"
+echo "Destino: http://$IP:$PORT"
+echo
+
+read -p "Confirmar? (s/N): " CONFIRM
+
+if [[ ! "$CONFIRM" =~ ^[Ss]$ ]]; then
+    echo "Operação cancelada."
+    exit 0
+fi
+
+if ! grep -q "$DOMAIN" /etc/hosts; then
+    echo "127.0.0.1 $DOMAIN" | sudo tee -a /etc/hosts >/dev/null
+fi
+
+sudo tee "$CONF_FILE" > /dev/null <<EONGINX
+server {
+    listen 80;
+    server_name $DOMAIN;
+
+    location / {
+        proxy_pass http://$IP:$PORT;
+
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EONGINX
+
+if sudo nginx -t; then
+    sudo systemctl reload nginx
+    echo
+    echo "✓ Domínio criado com sucesso!"
+    echo "http://$DOMAIN"
+else
+    sudo rm -f "$CONF_FILE"
+    echo "Erro na configuração."
+    exit 1
+fi
+EOF
+
+chmod +x "$BIN_DIR/adddominio"
+
+# ─────────────────────────────────────────────
+# atualizar
+# ─────────────────────────────────────────────
+cat > "$BIN_DIR/atualizar" << 'EOF'
+#!/bin/bash
+sudo dnf update --refresh -y
+EOF
+
+chmod +x "$BIN_DIR/atualizar"
+
+# ─────────────────────────────────────────────
+# temp
+# ─────────────────────────────────────────────
+cat > "$BIN_DIR/temp" << 'EOF'
+#!/bin/bash
+
+if [ ! -d "$HOME/Temp" ]; then
+    echo "Pasta ~/Temp não existe."
+    exit 0
+fi
+
+read -p "Deseja limpar a pasta ~/Temp? (s/N): " resposta
+
+if [[ "$resposta" =~ ^[Ss]$ ]]; then
+    cd "$HOME/Temp" || exit 1
+    rm -rf ./*
+    echo "Pasta Temp limpa."
+else
+    echo "Limpeza cancelada."
+fi
+EOF
+
+chmod +x "$BIN_DIR/temp"
+
+ok "Scripts personalizados instalados!"
+
 
 # ════════════════════════════════════════════════════
 # RESUMO FINAL
@@ -489,7 +606,11 @@ echo -e "${GREEN}  ✔  ZSH + Oh My Zsh"
 echo -e "  ✔  Git + Chave SSH"
 echo -e "  ✔  Brave Browser Nightly"
 echo -e "  ✔  Discord"
-echo -e "  ✔  VLC + Spotify + OBS + openh264${NC}"
+echo -e "  ✔  VLC + Spotify + OBS + openh264"
+echo -e "  ✔  Nginx"
+echo -e "  ✔  adddominio"
+echo -e "  ✔  atualizar"
+echo -e "  ✔  temp${NC}"
 echo ""
 echo -e "${YELLOW}${BOLD}  PENDÊNCIAS MANUAIS:${NC}"
 echo -e "${YELLOW}  1. Edite SSH_EMAIL no script antes de rodar"
