@@ -338,8 +338,12 @@ info "Acesse com: sudo -u postgres psql"
 section "10.1 — PGAdmin 4"
 
 info "Instalando PGAdmin 4..."
-
-sudo -u "$REAL_USER" flatpak install -y flathub org.pgadmin.pgadmin4
+sudo -u "$REAL_USER" flatpak remote-add \
+    --if-not-exists \
+    flathub \
+    https://flathub.org/repo/flathub.flatpakrepo
+    
+sudo -u "$REAL_USER" flatpak install --user -y flathub org.pgadmin.pgadmin4
 
 ok "PGAdmin 4 instalado!"
 
