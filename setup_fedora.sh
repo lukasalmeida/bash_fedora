@@ -61,7 +61,10 @@ ok "Sistema atualizado!"
 
 # ── Brave Browser Nightly ──────────────────────────
 info "Brave Browser Nightly..."
-dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
+if [ ! -f /etc/yum.repos.d/brave-browser-nightly.repo ]; then
+    dnf config-manager addrepo \
+    --from-repofile=https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
+fi
 rpm --import https://brave-browser-rpm-nightly.s3.brave.com/brave-core-nightly.asc
 
 # ── VS Code ───────────────────────────────────────
@@ -88,7 +91,10 @@ EOF
 
 # ── Docker ────────────────────────────────────────
 info "Docker..."
-dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+if [ ! -f /etc/yum.repos.d/docker-ce.repo ]; then
+    dnf config-manager addrepo \
+    --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+fi
 
 # ── Flathub ───────────────────────────────────────
 info "Flathub..."
@@ -113,7 +119,7 @@ fi
 
 dnf install -y --quiet $PACKAGES
 
-ok "zsh, htop, neofetch, tree, fzf, bat, ripgrep, jq"
+ok "Ferramentas de terminal instaladas"
 
 # ── Oh My Zsh ─────────────────────────────────────
 if [ ! -d "$HOME_DIR/.oh-my-zsh" ]; then
@@ -317,7 +323,8 @@ if [ ! -f /var/lib/pgsql/data/PG_VERSION ]; then
     postgresql-setup --initdb --unit postgresql
 fi
 
-systemctl enable --now postgresql
+systemctl enable postgresql >/dev/null 2>&1
+systemctl start postgresql >/dev/null 2>&1
 ok "PostgreSQL instalado e iniciado!"
 info "Acesse com: sudo -u postgres psql"
 
@@ -368,8 +375,7 @@ print(data['TBA'][0]['downloads']['linux']['link'])
 curl -Lo /tmp/jetbrains-toolbox.tar.gz "$TOOLBOX_URL"
 tar -xzf /tmp/jetbrains-toolbox.tar.gz -C /tmp/
 TOOLBOX_BIN=$(find /tmp -name "jetbrains-toolbox" -type f 2>/dev/null | head -1)
-mv "$TOOLBOX_BIN" /usr/local/bin/jetbrains-toolbox
-chmod +x /usr/local/bin/jetbrains-toolbox
+install -m 755 "$TOOLBOX_BIN" /usr/local/bin/jetbrains-toolboxchmod +x /usr/local/bin/jetbrains-toolbox
 rm -rf /tmp/jetbrains-toolbox* /tmp/jetbrains-toolbox-*
 ok "JetBrains Toolbox instalado em /usr/local/bin/"
 warn "Abra o Toolbox e instale manualmente: IntelliJ IDEA, PyCharm e DataGrip"
@@ -431,7 +437,7 @@ ok "Steam instalado!"
 section "13/15 — Comunicação"
 
 info "Instalando Discord..."
-sudo -u "$REAL_USER" flatpak install -y flathub com.discordapp.Discord
+sudo -u "$REAL_USER" flatpak install -y --noninteractive flathub com.discordapp.Discord || true
 ok "Discord instalado!"
 
 
