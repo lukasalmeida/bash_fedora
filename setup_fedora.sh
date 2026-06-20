@@ -207,9 +207,9 @@ ok "Globais: pnpm, yarn, typescript, ts-node"
 
 
 # ════════════════════════════════════════════════════
-# 5. JAVA 21 + MAVEN
+# 5. Java Latest OpenJDK + Maven
 # ════════════════════════════════════════════════════
-section "5/15 — Java 21 + Maven"
+section "5/15 — Java Latest OpenJDK + Maven"
 
 dnf install -y --quiet java-latest-openjdk java-latest-openjdk-devel maven
 ok "Java 21 (OpenJDK) + Maven instalados!"
@@ -308,8 +308,11 @@ gpgcheck=1
 gpgkey=https://pkgs.k8s.io/core:/stable:/v1.30/gpgkey
 EOF
 
-dnf install -y --quiet kubectl
-ok "kubectl instalado!"
+if dnf install -y kubectl; then
+    ok "kubectl instalado!"
+else
+    warn "Falha ao instalar kubectl. Continuando..."
+fi
 
 
 # ════════════════════════════════════════════════════
@@ -375,8 +378,7 @@ print(data['TBA'][0]['downloads']['linux']['link'])
 curl -Lo /tmp/jetbrains-toolbox.tar.gz "$TOOLBOX_URL"
 tar -xzf /tmp/jetbrains-toolbox.tar.gz -C /tmp/
 TOOLBOX_BIN=$(find /tmp -name "jetbrains-toolbox" -type f 2>/dev/null | head -1)
-install -m 755 "$TOOLBOX_BIN" /usr/local/bin/jetbrains-toolboxchmod +x /usr/local/bin/jetbrains-toolbox
-rm -rf /tmp/jetbrains-toolbox* /tmp/jetbrains-toolbox-*
+install -m 755 "$TOOLBOX_BIN" /usr/local/bin/jetbrains-toolboxrm -rf /tmp/jetbrains-toolbox* /tmp/jetbrains-toolbox-*
 ok "JetBrains Toolbox instalado em /usr/local/bin/"
 warn "Abra o Toolbox e instale manualmente: IntelliJ IDEA, PyCharm e DataGrip"
 
