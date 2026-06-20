@@ -1,146 +1,266 @@
 # 🐧 Fedora Setup — Lucas
 
 Script de configuração automática para reinstalação do Fedora Linux.
-Executa uma vez e instala tudo que preciso para trabalhar.
+
+Executa uma única vez e instala todo o ambiente de desenvolvimento, banco de dados, ferramentas, multimídia e utilitários necessários para o dia a dia.
 
 ---
 
 ## ⚡ Como usar
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/lukasalmeida/bash_fedora
-cd fedora-setup
+# Clone o repositório
+git clone https://github.com/lukasalmeida/bash_fedora.git
 
-# 2. Edite seu email de SSH antes de rodar (linha SSH_EMAIL no script)
+cd bash_fedora
+
+# Edite seu email SSH no script
 nano setup-fedora.sh
 
-# 3. Execute como root
+# Execute como root
 sudo bash setup-fedora.sh
 ```
 
-> Tempo estimado: **20–40 minutos** dependendo da sua internet.
+> Tempo estimado: **20–40 minutos**, dependendo da velocidade da internet.
 
 ---
 
-## 📦 O que é instalado
+# 📦 O que é instalado
 
-### 🖥️ IDEs & Editores
-| App | Como |
-|-----|------|
-| VS Code | dnf (repo oficial) |
-| Cursor | dnf (repo oficial) |
-| IntelliJ IDEA | JetBrains Toolbox |
-| PyCharm | JetBrains Toolbox |
-| DataGrip | Flatpak |
-| JetBrains Toolbox | tarball oficial |
+## 🖥️ IDEs & Editores
 
-### 🛠️ Ferramentas de Desenvolvimento
-| App | Como |
-|-----|------|
-| Docker Desktop | RPM oficial |
-| kubectl | dnf (repo k8s) |
-| Postman | Flatpak |
-| Draw\.io | Flatpak |
-| FreeDownloadManager | AppImage (`~/Applications/`) |
-| qBittorrent | dnf |
-| Steam | Flatpak |
-
-### 🔤 Linguagens & Runtime
-| Linguagem | Versão | Extra |
-|-----------|--------|-------|
-| Node.js | LTS via NVM | pnpm, yarn, typescript, ts-node |
-| Java | 21 (OpenJDK) | Maven |
-| Python | 3 | pip, venv |
-| PHP | última estável | Composer |
-
-### 🗄️ Banco de Dados
-| App | Como |
-|-----|------|
-| PostgreSQL | dnf + iniciado como serviço |
-
-### 🌐 Navegadores
-| App | Como |
-|-----|------|
-| Brave Browser Nightly | dnf (repo oficial) |
-| Firefox | pré-instalado no Fedora |
-
-### 💬 Comunicação
-| App | Como |
-|-----|------|
-| Discord | Flatpak |
-
-### 🎵 Multimídia
-| App | Como |
-|-----|------|
-| Spotify | Flatpak |
-| OBS Studio | Flatpak |
-| VLC | dnf / Flatpak (fallback) |
-| openh264 | dnf (repo Cisco) |
-
-### 🖥️ Terminal
-| App | Descrição |
-|-----|-----------|
-| ZSH + Oh My Zsh | Shell padrão |
-| htop | Monitor de processos |
-| neofetch | Info do sistema |
-| bat | `cat` com syntax highlight |
-| fzf | Busca fuzzy |
-| ripgrep | Busca em arquivos |
-| jq | Manipulação de JSON |
-| tree | Visualização de diretórios |
+| Aplicação         | Método                        |
+| ----------------- | ----------------------------- |
+| VS Code           | Repositório oficial Microsoft |
+| Cursor            | Repositório oficial           |
+| JetBrains Toolbox | Download oficial              |
+| IntelliJ IDEA     | Via Toolbox                   |
+| PyCharm           | Via Toolbox                   |
+| DataGrip          | Flatpak                       |
 
 ---
 
-## 🔧 Repositórios configurados
+## 🛠️ Ferramentas de Desenvolvimento
 
-```
-brave-browser-nightly   → Brave Browser Nightly
-code                    → Visual Studio Code
-cursor                  → Cursor
-docker-ce-stable        → Docker CE / Docker Desktop
-kubernetes              → kubectl
-flathub                 → Apps Flatpak
+| Aplicação             | Método                 |
+| --------------------- | ---------------------- |
+| Docker Desktop        | RPM oficial            |
+| kubectl               | Repositório Kubernetes |
+| Postman               | Flatpak                |
+| Draw.io               | Flatpak                |
+| Free Download Manager | AppImage               |
+| qBittorrent           | DNF                    |
+| Steam                 | Flatpak                |
+
+---
+
+## 🔤 Linguagens & Runtime
+
+| Tecnologia | Versão                   |
+| ---------- | ------------------------ |
+| Node.js    | LTS via NVM              |
+| pnpm       | Global                   |
+| yarn       | Global                   |
+| TypeScript | Global                   |
+| ts-node    | Global                   |
+| Java       | OpenJDK 21               |
+| Maven      | Última versão            |
+| Python     | Python 3                 |
+| pip        | Incluído                 |
+| venv       | Incluído                 |
+| PHP        | Última versão disponível |
+| Composer   | Última versão            |
+
+---
+
+## 🗄️ Banco de Dados
+
+| Aplicação  | Método  |
+| ---------- | ------- |
+| PostgreSQL | DNF     |
+| PGAdmin 4  | Flatpak |
+
+### PostgreSQL
+
+O serviço é configurado automaticamente:
+
+```bash
+sudo -u postgres psql
 ```
 
 ---
 
-## ✅ Pós-instalação (manual)
+## 🌐 Servidor Web
 
-Algumas coisas precisam de interação após o script terminar:
+| Aplicação | Método |
+| --------- | ------ |
+| Nginx     | DNF    |
 
-- [ ] Adicionar `~/.ssh/id_ed25519.pub` no GitHub → Settings → SSH Keys
-- [ ] Configurar nome e email no Git:
-  ```bash
-  git config --global user.name "Lucas"
-  git config --global user.email "seuemail@gmail.com"
-  ```
-- [ ] Abrir o **JetBrains Toolbox** e instalar IntelliJ IDEA + PyCharm
-- [ ] Abrir o **Docker Desktop** uma vez para completar a configuração
-- [ ] **Reiniciar o sistema**
+O Nginx é iniciado automaticamente:
 
----
-
-## 🗂️ Estrutura
-
-```
-fedora-setup/
-└── setup-fedora.sh   # Script principal
-└── README.md         # Este arquivo
+```bash
+sudo systemctl status nginx
 ```
 
 ---
 
-## 📝 Observações
+## 🌍 Navegadores
 
-- **FreeDownloadManager** é instalado como AppImage em `~/Applications/`
-- **VLC** tenta instalar via `dnf`; se falhar, usa Flatpak automaticamente
-- **Docker Desktop** substitui o Docker CE — não instale os dois
-- O script para imediatamente (`set -e`) se qualquer comando falhar
+| Aplicação             | Método               |
+| --------------------- | -------------------- |
+| Brave Browser Nightly | Repositório oficial  |
+| Firefox               | Já incluso no Fedora |
 
 ---
 
-## ⚙️ Testado em
+## 💬 Comunicação
+
+| Aplicação | Método  |
+| --------- | ------- |
+| Discord   | Flatpak |
+
+---
+
+## 🎵 Multimídia
+
+| Aplicação  | Método         |
+| ---------- | -------------- |
+| Spotify    | Flatpak        |
+| OBS Studio | Flatpak        |
+| VLC        | DNF ou Flatpak |
+| openh264   | DNF            |
+
+---
+
+## 💻 Terminal
+
+| Ferramenta | Função                   |
+| ---------- | ------------------------ |
+| ZSH        | Shell padrão             |
+| Oh My Zsh  | Framework ZSH            |
+| htop       | Monitor de processos     |
+| neofetch   | Informações do sistema   |
+| bat        | Cat com syntax highlight |
+| tree       | Estrutura de diretórios  |
+| fzf        | Busca fuzzy              |
+| ripgrep    | Busca rápida             |
+| jq         | Manipulação JSON         |
+
+---
+
+# 🔧 Repositórios Configurados
+
+* Brave Browser Nightly
+* Visual Studio Code
+* Cursor
+* Docker
+* Kubernetes
+* Flathub
+
+---
+
+# ⚙️ Scripts Personalizados
+
+Após a instalação ficam disponíveis globalmente:
+
+## adddominio
+
+Cria domínios locais automaticamente no Nginx.
+
+```bash
+adddominio
+```
+
+Exemplo:
+
+```text
+olezele.local
+↓
+http://127.0.0.1:3000
+```
+
+O script:
+
+* Cria configuração Nginx
+* Atualiza `/etc/hosts`
+* Recarrega o Nginx automaticamente
+
+---
+
+## atualizar
+
+Atualiza todo o sistema Fedora.
+
+```bash
+atualizar
+```
+
+---
+
+## temp
+
+Limpa a pasta:
+
+```bash
+~/Temp
+```
+
+Executando:
+
+```bash
+temp
+```
+
+---
+
+# 📂 Estrutura
+
+```text
+bash_fedora/
+├── setup-fedora.sh
+└── README.md
+```
+
+---
+
+# ✅ Pós-instalação
+
+Após a execução do script:
+
+* [ ] Adicionar a chave SSH no GitHub
+* [ ] Configurar nome do Git
+
+```bash
+git config --global user.name "Lucas"
+git config --global user.email "seuemail@gmail.com"
+```
+
+* [ ] Abrir o JetBrains Toolbox
+* [ ] Instalar IntelliJ IDEA
+* [ ] Instalar PyCharm
+* [ ] Abrir o Docker Desktop pela primeira vez
+* [ ] Reiniciar o sistema
+
+---
+
+# 📝 Observações
+
+* O script utiliza `set -e`, interrompendo a execução ao primeiro erro.
+* Free Download Manager é instalado em:
+
+```bash
+~/Applications
+```
+
+* Cursor possui fallback automático para AppImage caso o repositório falhe.
+* VLC tenta instalação via DNF e utiliza Flatpak como alternativa.
+* PostgreSQL é iniciado automaticamente após a instalação.
+* Nginx é iniciado automaticamente após a instalação.
+* PGAdmin 4 é instalado via Flatpak.
+
+---
+
+# 🧪 Testado em
 
 ![Fedora](https://img.shields.io/badge/Fedora-44-blue?logo=fedora)
-![Arch](https://img.shields.io/badge/arch-x86__64-lightgrey)
+![Linux](https://img.shields.io/badge/Linux-x86__64-lightgrey)
