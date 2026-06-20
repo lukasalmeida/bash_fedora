@@ -322,19 +322,9 @@ info "Acesse com: sudo -u postgres psql"
 # ════════════════════════════════════════════════════
 section "10.1 — PGAdmin 4"
 
-info "Configurando repositório do PGAdmin..."
-
-cat > /etc/yum.repos.d/pgadmin4.repo << 'EOF'
-[pgadmin4]
-name=pgAdmin4
-baseurl=https://ftp.postgresql.org/pub/pgadmin/pgadmin4/yum/pgadmin4-fedora-repo
-enabled=1
-gpgcheck=0
-EOF
-
 info "Instalando PGAdmin 4..."
 
-dnf install -y pgadmin4-desktop
+sudo -u "$REAL_USER" flatpak install -y flathub org.pgadmin.pgadmin4
 
 ok "PGAdmin 4 instalado!"
 
