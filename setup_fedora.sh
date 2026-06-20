@@ -103,8 +103,15 @@ ok "Todos os repositórios configurados!"
 # ════════════════════════════════════════════════════
 section "2/15 — Ferramentas de terminal"
 
-dnf install -y --quiet \
-zsh htop neofetch tree fzf bat ripgrep jq
+PACKAGES="zsh htop tree fzf bat ripgrep jq"
+
+if dnf info fastfetch >/dev/null 2>&1; then
+    PACKAGES="$PACKAGES fastfetch"
+else
+    PACKAGES="$PACKAGES neofetch"
+fi
+
+dnf install -y --quiet $PACKAGES
 
 ok "zsh, htop, neofetch, tree, fzf, bat, ripgrep, jq"
 
@@ -219,7 +226,7 @@ ok "JAVA_HOME configurado!"
 # ════════════════════════════════════════════════════
 section "6/15 — Python 3"
 
-dnf install -y --quiet python3 python3-pip python3-venv python3-devel
+dnf install -y --quiet python3 python3-pip python3-devel
 ok "Python 3 instalado!"
 
 PYTHON_BLOCK='
@@ -240,7 +247,7 @@ done
 section "7/15 — PHP + Composer"
 
 dnf install -y --quiet \
-php php-cli php-fpm php-json php-mbstring \
+php php-cli php-fpm php-mbstring \
 php-xml php-curl php-zip php-pdo php-pgsql
 ok "PHP instalado!"
 
