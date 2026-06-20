@@ -61,8 +61,7 @@ ok "Sistema atualizado!"
 
 # ── Brave Browser Nightly ──────────────────────────
 info "Brave Browser Nightly..."
-dnf config-manager --add-repo \
-https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
+dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
 rpm --import https://brave-browser-rpm-nightly.s3.brave.com/brave-core-nightly.asc
 
 # ── VS Code ───────────────────────────────────────
@@ -89,8 +88,7 @@ EOF
 
 # ── Docker ────────────────────────────────────────
 info "Docker..."
-dnf config-manager --add-repo \
-https://download.docker.com/linux/fedora/docker-ce.repo
+dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
 
 # ── Flathub ───────────────────────────────────────
 info "Flathub..."
