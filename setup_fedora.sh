@@ -25,16 +25,16 @@ err()     { echo -e "  ${RED}✘  $1${NC}"; }
 
 # ─── Verificação de root ──────────────────────────
 if [[ $EUID -ne 0 ]]; then
-  err "Execute como root: sudo bash setup-fedora.sh"
-  exit 1
+    err "Execute como root: sudo bash setup-fedora.sh"
+    exit 1
 fi
 
 REAL_USER="${SUDO_USER:-$(logname 2>/dev/null)}"
 HOME_DIR="/home/$REAL_USER"
 
 if [[ -z "$REAL_USER" || "$REAL_USER" == "root" ]]; then
-  err "Não foi possível identificar o usuário. Use: sudo bash setup-fedora.sh"
-  exit 1
+    err "Não foi possível identificar o usuário. Use: sudo bash setup-fedora.sh"
+    exit 1
 fi
 
 # Pasta para AppImages
@@ -54,15 +54,15 @@ section "1/15 — Sistema + Repositórios"
 
 dnf update -y --quiet
 dnf install -y --quiet \
-  dnf-plugins-core curl wget unzip zip tar \
-  make gcc gcc-c++ openssl openssl-devel \
-  fuse fuse-libs                           # necessário para AppImages
+dnf-plugins-core curl wget unzip zip tar \
+make gcc gcc-c++ openssl openssl-devel \
+fuse fuse-libs                           # necessário para AppImages
 ok "Sistema atualizado!"
 
 # ── Brave Browser Nightly ──────────────────────────
 info "Brave Browser Nightly..."
 dnf config-manager --add-repo \
-  https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
+https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
 rpm --import https://brave-browser-rpm-nightly.s3.brave.com/brave-core-nightly.asc
 
 # ── VS Code ───────────────────────────────────────
@@ -90,7 +90,7 @@ EOF
 # ── Docker ────────────────────────────────────────
 info "Docker..."
 dnf config-manager --add-repo \
-  https://download.docker.com/linux/fedora/docker-ce.repo
+https://download.docker.com/linux/fedora/docker-ce.repo
 
 # ── Flathub ───────────────────────────────────────
 info "Flathub..."
@@ -106,18 +106,18 @@ ok "Todos os repositórios configurados!"
 section "2/15 — Ferramentas de terminal"
 
 dnf install -y --quiet \
-  zsh htop neofetch tree fzf bat ripgrep jq
+zsh htop neofetch tree fzf bat ripgrep jq
 
 ok "zsh, htop, neofetch, tree, fzf, bat, ripgrep, jq"
 
 # ── Oh My Zsh ─────────────────────────────────────
 if [ ! -d "$HOME_DIR/.oh-my-zsh" ]; then
-  info "Instalando Oh My Zsh..."
-  sudo -u "$REAL_USER" sh -c \
+    info "Instalando Oh My Zsh..."
+    sudo -u "$REAL_USER" sh -c \
     "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-  ok "Oh My Zsh instalado!"
+    ok "Oh My Zsh instalado!"
 else
-  warn "Oh My Zsh já existe, pulando..."
+    warn "Oh My Zsh já existe, pulando..."
 fi
 
 chsh -s "$(which zsh)" "$REAL_USER"
@@ -143,18 +143,18 @@ chmod 700 "$HOME_DIR/.ssh"
 chown "$REAL_USER":"$REAL_USER" "$HOME_DIR/.ssh"
 
 if [ ! -f "$SSH_KEY" ]; then
-  # ─── EDITE SEU EMAIL AQUI ───────────────────────
-  SSH_EMAIL="seuemail@gmail.com"
-  # ───────────────────────────────────────────────
-  sudo -u "$REAL_USER" ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$SSH_KEY" -N ""
-  ok "Chave SSH gerada!"
-  echo ""
-  warn "Adicione esta chave no GitHub → Settings → SSH Keys:"
-  echo -e "${CYAN}"
-  cat "$SSH_KEY.pub"
-  echo -e "${NC}"
+    # ─── EDITE SEU EMAIL AQUI ───────────────────────
+    SSH_EMAIL="seuemail@gmail.com"
+    # ───────────────────────────────────────────────
+    sudo -u "$REAL_USER" ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$SSH_KEY" -N ""
+    ok "Chave SSH gerada!"
+    echo ""
+    warn "Adicione esta chave no GitHub → Settings → SSH Keys:"
+    echo -e "${CYAN}"
+    cat "$SSH_KEY.pub"
+    echo -e "${NC}"
 else
-  warn "Chave SSH já existe, pulando..."
+    warn "Chave SSH já existe, pulando..."
 fi
 
 
@@ -167,11 +167,11 @@ NVM_VERSION="v0.40.1"
 NVM_DIR="$HOME_DIR/.nvm"
 
 if [ ! -d "$NVM_DIR" ]; then
-  sudo -u "$REAL_USER" bash -c \
+    sudo -u "$REAL_USER" bash -c \
     "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash"
-  ok "NVM $NVM_VERSION instalado!"
+    ok "NVM $NVM_VERSION instalado!"
 else
-  warn "NVM já existe, pulando..."
+    warn "NVM já existe, pulando..."
 fi
 
 NVM_BLOCK='
@@ -209,9 +209,9 @@ export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
 export PATH="$JAVA_HOME/bin:$PATH"'
 
 for RC in "$HOME_DIR/.zshrc" "$HOME_DIR/.bashrc"; do
-  if ! grep -q "JAVA_HOME" "$RC" 2>/dev/null; then
-    echo "$JAVA_BLOCK" >> "$RC"
-  fi
+    if ! grep -q "JAVA_HOME" "$RC" 2>/dev/null; then
+        echo "$JAVA_BLOCK" >> "$RC"
+    fi
 done
 ok "JAVA_HOME configurado!"
 
@@ -230,9 +230,9 @@ alias python=python3
 alias pip=pip3'
 
 for RC in "$HOME_DIR/.zshrc" "$HOME_DIR/.bashrc"; do
-  if ! grep -q "alias python=python3" "$RC" 2>/dev/null; then
-    echo "$PYTHON_BLOCK" >> "$RC"
-  fi
+    if ! grep -q "alias python=python3" "$RC" 2>/dev/null; then
+        echo "$PYTHON_BLOCK" >> "$RC"
+    fi
 done
 
 
@@ -242,8 +242,8 @@ done
 section "7/15 — PHP + Composer"
 
 dnf install -y --quiet \
-  php php-cli php-fpm php-json php-mbstring \
-  php-xml php-curl php-zip php-pdo php-pgsql
+php php-cli php-fpm php-json php-mbstring \
+php-xml php-curl php-zip php-pdo php-pgsql
 ok "PHP instalado!"
 
 info "Instalando Composer..."
@@ -252,12 +252,12 @@ php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');"
 ACTUAL_CS="$(php -r "echo hash_file('sha384', '/tmp/composer-setup.php');")"
 
 if [ "$EXPECTED_CS" = "$ACTUAL_CS" ]; then
-  php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer --quiet
-  rm /tmp/composer-setup.php
-  ok "Composer instalado!"
+    php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer --quiet
+    rm /tmp/composer-setup.php
+    ok "Composer instalado!"
 else
-  warn "Falha no checksum — instale o Composer manualmente depois."
-  rm -f /tmp/composer-setup.php
+    warn "Falha no checksum — instale o Composer manualmente depois."
+    rm -f /tmp/composer-setup.php
 fi
 
 
@@ -272,7 +272,7 @@ ok "Dependências instaladas (pass, gnome-terminal)"
 
 info "Baixando Docker Desktop (RPM)..."
 curl -Lo /tmp/docker-desktop.rpm \
-  "https://desktop.docker.com/linux/main/amd64/docker-desktop-x86_64.rpm"
+"https://desktop.docker.com/linux/main/amd64/docker-desktop-x86_64.rpm"
 dnf install -y /tmp/docker-desktop.rpm
 rm -f /tmp/docker-desktop.rpm
 
@@ -309,12 +309,34 @@ section "10/15 — PostgreSQL"
 dnf install -y --quiet postgresql postgresql-server postgresql-contrib
 
 if [ ! -f /var/lib/pgsql/data/PG_VERSION ]; then
-  postgresql-setup --initdb
+    postgresql-setup --initdb --unit postgresql
 fi
 
 systemctl enable --now postgresql
 ok "PostgreSQL instalado e iniciado!"
 info "Acesse com: sudo -u postgres psql"
+
+
+# ════════════════════════════════════════════════════
+# 10.1 PGADMIN 4
+# ════════════════════════════════════════════════════
+section "10.1 — PGAdmin 4"
+
+info "Configurando repositório do PGAdmin..."
+
+cat > /etc/yum.repos.d/pgadmin4.repo << 'EOF'
+[pgadmin4]
+name=pgAdmin4
+baseurl=https://ftp.postgresql.org/pub/pgadmin/pgadmin4/yum/pgadmin4-fedora-repo
+enabled=1
+gpgcheck=0
+EOF
+
+info "Instalando PGAdmin 4..."
+
+dnf install -y pgadmin4-desktop
+
+ok "PGAdmin 4 instalado!"
 
 
 # ════════════════════════════════════════════════════
@@ -330,19 +352,19 @@ ok "VS Code instalado!"
 # ── Cursor ────────────────────────────────────────
 info "Instalando Cursor..."
 dnf install -y --quiet cursor || {
-  warn "Falha via repo — tentando via AppImage..."
-  curl -Lo "$APPS_DIR/Cursor.AppImage" \
+    warn "Falha via repo — tentando via AppImage..."
+    curl -Lo "$APPS_DIR/Cursor.AppImage" \
     "https://download.todesktop.com/230313mzl4w4u92/linux/appimage/x64"
-  chmod +x "$APPS_DIR/Cursor.AppImage"
-  chown "$REAL_USER":"$REAL_USER" "$APPS_DIR/Cursor.AppImage"
-  ok "Cursor instalado como AppImage em ~/Applications/"
+    chmod +x "$APPS_DIR/Cursor.AppImage"
+    chown "$REAL_USER":"$REAL_USER" "$APPS_DIR/Cursor.AppImage"
+    ok "Cursor instalado como AppImage em ~/Applications/"
 }
 
 # ── JetBrains Toolbox → IntelliJ, PyCharm, DataGrip ──
 info "Instalando JetBrains Toolbox..."
 TOOLBOX_URL=$(curl -s \
-  "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
-  | python3 -c "
+    "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
+    | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
 print(data['TBA'][0]['downloads']['linux']['link'])
@@ -441,8 +463,8 @@ ok "openh264 instalado!"
 
 info "Instalando VLC..."
 dnf install -y --quiet vlc 2>/dev/null || {
-  warn "VLC não disponível no dnf — instalando via Flatpak..."
-  sudo -u "$REAL_USER" flatpak install -y flathub org.videolan.VLC
+    warn "VLC não disponível no dnf — instalando via Flatpak..."
+    sudo -u "$REAL_USER" flatpak install -y flathub org.videolan.VLC
 }
 ok "VLC instalado!"
 
@@ -600,6 +622,7 @@ echo -e "  ✔  Java 21 (OpenJDK) + Maven"
 echo -e "  ✔  Python 3"
 echo -e "  ✔  PHP + Composer"
 echo -e "  ✔  PostgreSQL"
+echo -e "  ✔  PGAdmin 4"
 echo ""
 echo -e "${BOLD}  Outros${NC}"
 echo -e "${GREEN}  ✔  ZSH + Oh My Zsh"
