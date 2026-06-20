@@ -211,7 +211,7 @@ ok "Globais: pnpm, yarn, typescript, ts-node"
 # ════════════════════════════════════════════════════
 section "5/15 — Java 21 + Maven"
 
-dnf install -y --quiet java-21-openjdk java-21-openjdk-devel maven
+dnf install -y --quiet java-latest-openjdk java-latest-openjdk-devel maven
 ok "Java 21 (OpenJDK) + Maven instalados!"
 
 JAVA_BLOCK='
