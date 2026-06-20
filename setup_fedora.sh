@@ -480,7 +480,7 @@ systemctl start nginx
 
 ok "Nginx instalado e iniciado!"
 
-BIN_DIR="/usr/local/bin"
+BIN_DIR="/bin"
 
 # ─────────────────────────────────────────────
 # adddominio
