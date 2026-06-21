@@ -449,13 +449,6 @@ info "Instalando DataGrip (Flatpak — alternativa ao Toolbox)..."
 install_flatpak com.jetbrains.DataGrip
 ok "DataGrip instalado!"
 
-# ── FreeDownloadManager ───────────────────────────
-info "Instalando FreeDownloadManager (AppImage)..."
-FDM_URL="https://download3.freedownloadmanager.org/latest/freedownloadmanager.x86_64.AppImage"
-curl -Lo "$APPS_DIR/FreeDownloadManager.AppImage" "$FDM_URL"
-chmod +x "$APPS_DIR/FreeDownloadManager.AppImage"
-ok "FreeDownloadManager instalado em ~/Applications/"
-
 # Criar .desktop para integração com o menu do sistema
 run_root tee "/usr/share/applications/freedownloadmanager.desktop" > /dev/null << EOF
 [Desktop Entry]
