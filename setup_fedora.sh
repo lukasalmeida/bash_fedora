@@ -355,7 +355,9 @@ section "10/16 — PostgreSQL"
 
 install_pkg postgresql postgresql-server postgresql-contrib
 
-if [ ! -f /var/lib/pgsql/data/PG_VERSION ]; then
+if [ -d "/var/lib/pgsql/data/base" ]; then
+    ok "PostgreSQL já inicializado."
+else
     run_root postgresql-setup --initdb --unit postgresql
 fi
 
