@@ -355,13 +355,26 @@ section "10/16 — PostgreSQL"
 
 install_pkg postgresql postgresql-server postgresql-contrib
 
-if [ -d "/var/lib/pgsql/data/base" ]; then
-    ok "PostgreSQL já inicializado."
+# Verifica se já existe um cluster funcional
+if sudo -u postgres psql -c '\l' >/dev/null 2>&1; then
+    ok "PostgreSQL já configurado."
 else
-    run_root postgresql-setup --initdb --unit postgresql
+    info "Configurando PostgreSQL..."
+
+    # somente inicializa se não existir PG_VERSION
+    if [ ! -f "/var/lib/pgsql/data/PG_VERSION" ]; then
+
+        # remove arquivos residuais que quebram o initdb
+        run_root rm -rf /var/lib/pgsql/data/*
+
+        run_root postgresql-setup --initdb --unit postgresql
+    fi
+
+    run_root systemctl enable --now postgresql
 fi
 
 run_root systemctl enable --now postgresql >/dev/null 2>&1
+
 ok "PostgreSQL instalado e iniciado!"
 info "Acesse com: sudo -u postgres psql"
 
