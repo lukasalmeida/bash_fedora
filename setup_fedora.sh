@@ -100,6 +100,8 @@ fi
 info "Flathub..."
 dnf install -y --quiet flatpak
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+sudo -u "$REAL_USER" flatpak remote-add --if-not-exists flathub \
+https://flathub.org/repo/flathub.flatpakrepo || true
 
 ok "Todos os repositórios configurados!"
 
@@ -289,7 +291,6 @@ rm -f /tmp/docker-desktop.rpm
 
 getent group docker >/dev/null || groupadd docker
 usermod -aG docker "$REAL_USER"
-systemctl --user enable docker-desktop 2>/dev/null || true
 ok "Docker Desktop instalado!"
 warn "Abra o Docker Desktop uma vez para completar a configuração inicial"
 
@@ -339,8 +340,9 @@ section "10.1 — PGAdmin 4"
 
 info "Instalando PGAdmin 4..."
     
-sudo -u "$REAL_USER" flatpak install --user -y flathub org.pgadmin.pgadmin4
-
+sudo -u "$REAL_USER" flatpak install --user -y flathub org.pgadmin.pgadmin4 || {
+    warn "Falha ao instalar PGAdmin"
+}
 ok "PGAdmin 4 instalado!"
 
 
@@ -378,8 +380,9 @@ print(data['TBA'][0]['downloads']['linux']['link'])
 curl -Lo /tmp/jetbrains-toolbox.tar.gz "$TOOLBOX_URL"
 tar -xzf /tmp/jetbrains-toolbox.tar.gz -C /tmp/
 TOOLBOX_BIN=$(find /tmp -name "jetbrains-toolbox" -type f 2>/dev/null | head -1)
-install -m 755 "$TOOLBOX_BIN" /usr/local/bin/jetbrains-toolboxrm -rf /tmp/jetbrains-toolbox* /tmp/jetbrains-toolbox-*
-ok "JetBrains Toolbox instalado em /usr/local/bin/"
+install -m 755 "$TOOLBOX_BIN" /usr/local/bin/jetbrains-toolbox
+
+rm -rf /tmp/jetbrains-toolbox* /tmp/jetbrains-toolbox-*ok "JetBrains Toolbox instalado em /usr/local/bin/"
 warn "Abra o Toolbox e instale manualmente: IntelliJ IDEA, PyCharm e DataGrip"
 
 
@@ -621,7 +624,7 @@ echo -e "  ✔  Steam"
 echo ""
 echo -e "${BOLD}  Linguagens & Runtime${NC}"
 echo -e "${GREEN}  ✔  Node.js LTS via NVM + pnpm, yarn, typescript, ts-node"
-echo -e "  ✔  Java 21 (OpenJDK) + Maven"
+echo -e "  ✔  Java latest (OpenJDK) + Maven"
 echo -e "  ✔  Python 3"
 echo -e "  ✔  PHP + Composer"
 echo -e "  ✔  PostgreSQL"
