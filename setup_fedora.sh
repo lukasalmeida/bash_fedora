@@ -1,23 +1,16 @@
-#!/bin/bash
-
-# ╔══════════════════════════════════════════════════╗
-# ║         SETUP FEDORA LINUX - Lucas               ║
-# ║  Execute: ./setup-fedora.sh  ou  bash setup-fedora.sh ║
-# ╚══════════════════════════════════════════════════╝
+script_content = """#!/bin/bash
 
 set -eo pipefail
 
-# ─── Cores ────────────────────────────────────────
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-PURPLE='\033[0;35m'
-BOLD='\033[1m'
-NC='\033[0m'
+RED='\\033[0;31m'
+GREEN='\\033[0;32m'
+YELLOW='\\033[1;33m'
+CYAN='\\033[0;36m'
+PURPLE='\\033[0;35m'
+BOLD='\\033[1m'
+NC='\\033[0m'
 
-# ─── Funções de log ───────────────────────────────
-section() { echo -e "\n${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; echo -e "${PURPLE}${BOLD}  $1${NC}"; echo -e "${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; }
+section() { echo -e "\\n${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; echo -e "${PURPLE}${BOLD}  $1${NC}"; echo -e "${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; }
 ok()      { echo -e "  ${GREEN}✔  $1${NC}"; }
 info()    { echo -e "  ${CYAN}→  $1${NC}"; }
 warn()    { echo -e "  ${YELLOW}⚠  $1${NC}"; }
@@ -25,20 +18,17 @@ err()     { echo -e "  ${RED}✘  $1${NC}"; }
 
 trap 'err "Erro na linha $LINENO. Abortando."; exit 1' ERR
 
-# ─── Verificação: não pode ser root ───────────────
 if [[ $EUID -eq 0 ]]; then
     err "Não execute este script como root ou com sudo."
     err "Use: ./setup-fedora.sh  ou  bash setup-fedora.sh"
     exit 1
 fi
 
-# ─── Verificação: usuário precisa ter permissão sudo ──
 if ! sudo -v; then
     err "Seu usuário precisa ter permissão sudo."
     exit 1
 fi
 
-# ─── Funções auxiliares ───────────────────────────
 run_root() {
     sudo "$@"
 }
@@ -51,40 +41,28 @@ install_flatpak() {
     flatpak install -y flathub "$1"
 }
 
-# ─── Usuário e diretórios ──────────────────────────
 REAL_USER="$(whoami)"
 HOME_DIR="$HOME"
 
-# Pasta para AppImages
 APPS_DIR="$HOME/Applications"
 mkdir -p "$APPS_DIR"
 
-echo -e "\n${BOLD}${CYAN}  Usuário: $REAL_USER${NC}"
+echo -e "\\n${BOLD}${CYAN}  Usuário: $REAL_USER${NC}"
 echo -e "${BOLD}${CYAN}  Home:    $HOME_DIR${NC}"
-echo -e "${BOLD}${CYAN}  Apps:    $APPS_DIR${NC}\n"
+echo -e "${BOLD}${CYAN}  Apps:    $APPS_DIR${NC}\\n"
 
-
-# ════════════════════════════════════════════════════
-# 1. SISTEMA + REPOSITÓRIOS
-# ════════════════════════════════════════════════════
 section "1/16 — Sistema + Repositórios"
 
 run_root dnf update -y --quiet
-install_pkg \
-dnf-plugins-core curl wget unzip zip tar \
-make gcc gcc-c++ openssl openssl-devel \
-fuse fuse-libs                           # necessário para AppImages
+install_pkg dnf-plugins-core curl wget unzip zip tar make gcc gcc-c++ openssl openssl-devel fuse fuse-libs
 ok "Sistema atualizado!"
 
-# ── Brave Browser Nightly ──────────────────────────
 info "Brave Browser Nightly..."
 if [ ! -f /etc/yum.repos.d/brave-browser-nightly.repo ]; then
-    run_root dnf config-manager addrepo \
-    --from-repofile=https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
+    run_root dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
 fi
 run_root rpm --import https://brave-browser-rpm-nightly.s3.brave.com/brave-core-nightly.asc
 
-# ── VS Code ───────────────────────────────────────
 info "VS Code..."
 run_root rpm --import https://packages.microsoft.com/keys/microsoft.asc
 if [ ! -f /etc/yum.repos.d/vscode.repo ]; then
@@ -98,7 +76,6 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
 fi
 
-# ── Cursor ────────────────────────────────────────
 info "Cursor..."
 if [ ! -f /etc/yum.repos.d/cursor.repo ]; then
     run_root tee /etc/yum.repos.d/cursor.repo > /dev/null << 'EOF'
@@ -110,27 +87,21 @@ gpgcheck=0
 EOF
 fi
 
-# ── Docker ────────────────────────────────────────
 info "Docker..."
 if [ ! -f /etc/yum.repos.d/docker-ce.repo ]; then
-    run_root dnf config-manager addrepo \
-    --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+    run_root dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
 fi
 
-# ── Flathub ───────────────────────────────────────
 info "Flathub..."
 install_pkg flatpak
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 ok "Todos os repositórios configurados!"
 
-
-# ════════════════════════════════════════════════════
-# 2. FERRAMENTAS DE TERMINAL
-# ════════════════════════════════════════════════════
 section "2/16 — Ferramentas de terminal"
 
-PACKAGES="zsh htop tree fzf bat ripgrep jq"
+run_root dnf copr enable -y atim/starship
+PACKAGES="zsh htop tree fzf bat ripgrep jq starship"
 
 if dnf info fastfetch >/dev/null 2>&1; then
     PACKAGES="$PACKAGES fastfetch"
@@ -139,26 +110,108 @@ else
 fi
 
 install_pkg $PACKAGES
-
 ok "Ferramentas de terminal instaladas"
 
-# ── Oh My Zsh ─────────────────────────────────────
-if [ ! -d "$HOME_DIR/.oh-my-zsh" ]; then
-    info "Instalando Oh My Zsh..."
-    sh -c \
-    "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    ok "Oh My Zsh instalado!"
-else
-    warn "Oh My Zsh já existe, pulando..."
+info "Configurando ZSH, Zinit e Starship..."
+cat << 'EOF' > "$HOME_DIR/.zshrc"
+if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
+    print -P "%F{33}%F{220}Instalando Zinit...%f"
+    mkdir -p "$HOME/.local/share/zinit"
+    git clone https://github.com/zdharma-continuum/zinit.git "$HOME/.local/share/zinit/zinit.git"
 fi
+
+source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+
+zinit light zsh-users/zsh-autosuggestions
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-completions
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
+
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#d65d0e'
+
+setopt AUTO_CD
+autoload -U compinit && compinit
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' menu select
+
+bindkey '^[[A' history-beginning-search-backward
+bindkey '^[[B' history-beginning-search-forward
+
+alias ls='ls --color=auto'
+alias ll='ls -lh --color=auto'
+alias la='ls -la --color=auto'
+alias c='clear'
+alias a='atualizar'
+
+eval "$(starship init zsh)"
+EOF
+
+mkdir -p "$HOME_DIR/.config"
+cat << 'EOF' > "$HOME_DIR/.config/starship.toml"
+format = \"\"\"
+[░▒▓](#ff8c00)\\
+$os\\
+$username\\
+[](bg:#fe8019 fg:#ff8c00)\\
+$directory\\
+[](fg:#fe8019 bg:#fabd2f)\\
+$git_branch\\
+$git_status\\
+[](fg:#fabd2f bg:#3c3836)\\
+$c\\
+$rust\\
+$golang\\
+$nodejs\\
+$php\\
+$java\\
+$python\\
+[](fg:#3c3836) $character\"\"\"
+
+[os]
+disabled = false
+style = "bg:#ff8c00 fg:#1d2021"
+
+[os.symbols]
+Fedora = "🎧 "
+
+[username]
+show_always = true
+style_user = "bg:#ff8c00 fg:#1d2021"
+style_root = "bg:#ff8c00 fg:#1d2021"
+format = '[$user]($style)'
+
+[directory]
+style = "bg:#fe8019 fg:#1d2021"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = ""
+style = "bg:#fabd2f fg:#1d2021"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "bg:#fabd2f fg:#1d2021"
+format = '[$all_status$ahead_behind ]($style)'
+
+[character]
+success_symbol = '[❯](bold #ff8c00)'
+error_symbol = '[❯](bold red)'
+EOF
 
 run_root chsh -s "$(which zsh)" "$REAL_USER"
 ok "Shell padrão → ZSH"
 
-
-# ════════════════════════════════════════════════════
-# 3. GIT + SSH
-# ════════════════════════════════════════════════════
 section "3/16 — Git + SSH"
 
 install_pkg git
@@ -174,13 +227,11 @@ mkdir -p ~/.ssh
 chmod 700 ~/.ssh
 
 if [ ! -f "$SSH_KEY" ]; then
-    # ─── EDITE SEU EMAIL AQUI ───────────────────────
     SSH_EMAIL="seuemail@gmail.com"
-    # ───────────────────────────────────────────────
     ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$SSH_KEY" -N ""
     ok "Chave SSH gerada!"
     echo ""
-    warn "Adicione esta chave no GitHub → Settings → SSH Keys:"
+    warn "Adicione esta chave no GitHub:"
     echo -e "${CYAN}"
     cat "$SSH_KEY.pub"
     echo -e "${NC}"
@@ -188,10 +239,6 @@ else
     warn "Chave SSH já existe, pulando..."
 fi
 
-
-# ════════════════════════════════════════════════════
-# 4. NODE.JS via NVM
-# ════════════════════════════════════════════════════
 section "4/16 — Node.js via NVM"
 
 NVM_VERSION="v0.40.1"
@@ -205,7 +252,6 @@ else
 fi
 
 NVM_BLOCK='
-# NVM - Node Version Manager
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'
@@ -217,25 +263,18 @@ for RC in "$HOME_DIR/.zshrc" "$HOME_DIR/.bashrc"; do
   fi
 done
 
-bash -c \
-  "source $NVM_DIR/nvm.sh && nvm install --lts && nvm use --lts && nvm alias default node"
+bash -c "source $NVM_DIR/nvm.sh && nvm install --lts && nvm use --lts && nvm alias default node"
 ok "Node.js LTS instalado!"
 
-bash -c \
-  "source $NVM_DIR/nvm.sh && npm install -g pnpm yarn typescript ts-node"
+bash -c "source $NVM_DIR/nvm.sh && npm install -g pnpm yarn typescript ts-node"
 ok "Globais: pnpm, yarn, typescript, ts-node"
 
-
-# ════════════════════════════════════════════════════
-# 5. Java Latest OpenJDK + Maven
-# ════════════════════════════════════════════════════
 section "5/16 — Java Latest OpenJDK + Maven"
 
 install_pkg java-latest-openjdk java-latest-openjdk-devel maven
 ok "Java (OpenJDK) + Maven instalados!"
 
 JAVA_BLOCK='
-# Java
 export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
 export PATH="$JAVA_HOME/bin:$PATH"'
 
@@ -247,17 +286,12 @@ for RC in "$HOME_DIR/.zshrc" "$HOME_DIR/.bashrc"; do
 done
 ok "JAVA_HOME configurado!"
 
-
-# ════════════════════════════════════════════════════
-# 6. PYTHON 3
-# ════════════════════════════════════════════════════
 section "6/16 — Python 3"
 
 install_pkg python3 python3-pip python3-devel
 ok "Python 3 instalado!"
 
 PYTHON_BLOCK='
-# Python
 alias python=python3
 alias pip=pip3'
 
@@ -268,15 +302,9 @@ for RC in "$HOME_DIR/.zshrc" "$HOME_DIR/.bashrc"; do
     fi
 done
 
-
-# ════════════════════════════════════════════════════
-# 7. PHP + COMPOSER
-# ════════════════════════════════════════════════════
 section "7/16 — PHP + Composer"
 
-install_pkg \
-php php-cli php-fpm php-mbstring \
-php-xml php-curl php-zip php-pdo php-pgsql
+install_pkg php php-cli php-fpm php-mbstring php-xml php-curl php-zip php-pdo php-pgsql
 ok "PHP instalado!"
 
 if command -v composer >/dev/null 2>&1; then
@@ -297,13 +325,8 @@ else
     fi
 fi
 
-
-# ════════════════════════════════════════════════════
-# 8. DOCKER DESKTOP
-# ════════════════════════════════════════════════════
 section "8/16 — Docker Desktop"
 
-# Dependências do Docker Desktop
 install_pkg pass gnome-terminal
 ok "Dependências instaladas (pass, gnome-terminal)"
 
@@ -311,8 +334,7 @@ if rpm -q docker-desktop >/dev/null 2>&1; then
     warn "Docker Desktop já instalado, pulando..."
 else
     info "Baixando Docker Desktop (RPM)..."
-    curl -Lo /tmp/docker-desktop.rpm \
-    "https://desktop.docker.com/linux/main/amd64/docker-desktop-x86_64.rpm"
+    curl -Lo /tmp/docker-desktop.rpm "https://desktop.docker.com/linux/main/amd64/docker-desktop-x86_64.rpm"
     install_pkg /tmp/docker-desktop.rpm
     rm -f /tmp/docker-desktop.rpm
     ok "Docker Desktop instalado!"
@@ -324,10 +346,6 @@ ok "Usuário adicionado ao grupo docker!"
 warn "Abra o Docker Desktop uma vez para completar a configuração inicial"
 warn "Faça logout/login para que a associação ao grupo docker tenha efeito"
 
-
-# ════════════════════════════════════════════════════
-# 9. KUBECTL
-# ════════════════════════════════════════════════════
 section "9/16 — kubectl"
 
 if [ ! -f /etc/yum.repos.d/kubernetes.repo ]; then
@@ -347,29 +365,18 @@ else
     warn "Falha ao instalar kubectl. Continuando..."
 fi
 
-
-# ════════════════════════════════════════════════════
-# 10. POSTGRESQL
-# ════════════════════════════════════════════════════
 section "10/16 — PostgreSQL"
 
 install_pkg postgresql postgresql-server postgresql-contrib
 
-# Verifica se já existe um cluster funcional
 if sudo -u postgres psql -c '\l' >/dev/null 2>&1; then
     ok "PostgreSQL já configurado."
 else
     info "Configurando PostgreSQL..."
-
-    # somente inicializa se não existir PG_VERSION
     if [ ! -f "/var/lib/pgsql/data/PG_VERSION" ]; then
-
-        # remove arquivos residuais que quebram o initdb
         run_root rm -rf /var/lib/pgsql/data/*
-
         run_root postgresql-setup --initdb --unit postgresql
     fi
-
     run_root systemctl enable --now postgresql
 fi
 
@@ -378,78 +385,50 @@ run_root systemctl enable --now postgresql >/dev/null 2>&1
 ok "PostgreSQL instalado e iniciado!"
 info "Acesse com: sudo -u postgres psql"
 
-
-# ════════════════════════════════════════════════════
-# 10.1 PGADMIN 4
-# ════════════════════════════════════════════════════
 section "10.1 — PGAdmin 4"
 
 info "Instalando PGAdmin 4..."
-
 install_flatpak org.pgadmin.pgadmin4
 ok "PGAdmin 4 instalado!"
 
-
-# ════════════════════════════════════════════════════
-# 11. IDEs
-# ════════════════════════════════════════════════════
 section "11/16 — IDEs"
 
-# ── VS Code ───────────────────────────────────────
 info "Instalando VS Code..."
 install_pkg code
 ok "VS Code instalado!"
 
-# ── Cursor ────────────────────────────────────────
 info "Instalando Cursor..."
 install_pkg cursor || {
     warn "Falha via repo — tentando via AppImage..."
-    curl -Lo "$APPS_DIR/Cursor.AppImage" \
-    "https://download.todesktop.com/230313mzl4w4u92/linux/appimage/x64"
+    curl -Lo "$APPS_DIR/Cursor.AppImage" "https://download.todesktop.com/230313mzl4w4u92/linux/appimage/x64"
     chmod +x "$APPS_DIR/Cursor.AppImage"
     ok "Cursor instalado como AppImage em ~/Applications/"
 }
 
-# ── JetBrains Toolbox → IntelliJ, PyCharm, DataGrip ──
 info "Instalando JetBrains Toolbox..."
 if [ -f /usr/local/bin/jetbrains-toolbox ]; then
     warn "JetBrains Toolbox já instalado, pulando..."
 else
-    TOOLBOX_URL=$(curl -s \
-        "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
-        | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-print(data['TBA'][0]['downloads']['linux']['link'])
-")
-
+    TOOLBOX_URL=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" | python3 -c "import sys, json; data = json.load(sys.stdin); print(data['TBA'][0]['downloads']['linux']['link'])")
     curl -Lo /tmp/jetbrains-toolbox.tar.gz "$TOOLBOX_URL"
     tar -xzf /tmp/jetbrains-toolbox.tar.gz -C /tmp/
     TOOLBOX_BIN=$(find /tmp -name "jetbrains-toolbox" -type f 2>/dev/null | head -1)
     run_root install -m 755 "$TOOLBOX_BIN" /usr/local/bin/jetbrains-toolbox
-
     rm -rf /tmp/jetbrains-toolbox*
     ok "JetBrains Toolbox instalado em /usr/local/bin/"
 fi
 warn "Abra o Toolbox e instale manualmente: IntelliJ IDEA, PyCharm e DataGrip"
 
-
-# ════════════════════════════════════════════════════
-# 12. FERRAMENTAS DE DESENVOLVIMENTO
-# ════════════════════════════════════════════════════
 section "12/16 — Ferramentas de Desenvolvimento"
 
-# ── Postman ───────────────────────────────────────
 info "Instalando Postman..."
 install_flatpak com.getpostman.Postman
 ok "Postman instalado!"
 
-# ── DataGrip ─────────────────────────────────────
-info "Instalando DataGrip (Flatpak — alternativa ao Toolbox)..."
+info "Instalando DataGrip (Flatpak)..."
 install_flatpak com.jetbrains.DataGrip
 ok "DataGrip instalado!"
 
-# Criar .desktop para integração com o menu do sistema
 run_root tee "/usr/share/applications/freedownloadmanager.desktop" > /dev/null << EOF
 [Desktop Entry]
 Name=Free Download Manager
@@ -460,35 +439,24 @@ Categories=Network;FileTransfer;
 EOF
 ok "Ícone do FDM adicionado ao menu!"
 
-# ── qBittorrent ───────────────────────────────────
 info "Instalando qBittorrent..."
 install_pkg qbittorrent
 ok "qBittorrent instalado!"
 
-# ── Draw.io ───────────────────────────────────────
 info "Instalando Draw.io..."
 install_flatpak com.jgraph.drawio.desktop
 ok "Draw.io instalado!"
 
-# ── Steam ─────────────────────────────────────────
 info "Instalando Steam..."
 install_flatpak com.valvesoftware.Steam
 ok "Steam instalado!"
 
-
-# ════════════════════════════════════════════════════
-# 13. COMUNICAÇÃO
-# ════════════════════════════════════════════════════
 section "13/16 — Comunicação"
 
 info "Instalando Discord..."
 install_flatpak com.discordapp.Discord || true
 ok "Discord instalado!"
 
-
-# ════════════════════════════════════════════════════
-# 14. NAVEGADORES
-# ════════════════════════════════════════════════════
 section "14/16 — Navegadores"
 
 info "Instalando Brave Browser Nightly..."
@@ -496,13 +464,8 @@ install_pkg brave-browser-nightly
 ok "Brave Browser Nightly instalado!"
 ok "Firefox já vem pré-instalado no Fedora"
 
-
-# ════════════════════════════════════════════════════
-# 15. MULTIMÍDIA
-# ════════════════════════════════════════════════════
 section "15/16 — Multimídia"
 
-# openh264 via Cisco (repo fedora-cisco-openh264 já vem habilitado)
 info "Instalando openh264..."
 install_pkg openh264 gstreamer1-plugin-openh264 mozilla-openh264
 ok "openh264 instalado!"
@@ -522,9 +485,6 @@ info "Instalando OBS Studio..."
 install_flatpak com.obsproject.Studio
 ok "OBS Studio instalado!"
 
-# ════════════════════════════════════════════════════
-# 16. NGINX + SCRIPTS PERSONALIZADOS
-# ════════════════════════════════════════════════════
 section "16/16 — Nginx + Scripts Personalizados"
 
 info "Instalando Nginx..."
@@ -537,9 +497,6 @@ ok "Nginx instalado e iniciado!"
 
 BIN_DIR="/usr/local/bin"
 
-# ─────────────────────────────────────────────
-# adddominio
-# ─────────────────────────────────────────────
 run_root tee "$BIN_DIR/adddominio" > /dev/null << 'EOF'
 #!/bin/bash
 
@@ -579,10 +536,10 @@ server {
     location / {
         proxy_pass http://$IP:$PORT;
 
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Host \\$host;
+        proxy_set_header X-Real-IP \\$remote_addr;
+        proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \\$scheme;
     }
 }
 EONGINX
@@ -601,9 +558,6 @@ EOF
 
 run_root chmod +x "$BIN_DIR/adddominio"
 
-# ─────────────────────────────────────────────
-# atualizar
-# ─────────────────────────────────────────────
 run_root tee "$BIN_DIR/atualizar" > /dev/null << 'EOF'
 #!/bin/bash
 sudo dnf update --refresh -y
@@ -611,9 +565,6 @@ EOF
 
 run_root chmod +x "$BIN_DIR/atualizar"
 
-# ─────────────────────────────────────────────
-# temp
-# ─────────────────────────────────────────────
 run_root tee "$BIN_DIR/temp" > /dev/null << 'EOF'
 #!/bin/bash
 
@@ -637,10 +588,6 @@ run_root chmod +x "$BIN_DIR/temp"
 
 ok "Scripts personalizados instalados em /usr/local/bin/!"
 
-
-# ════════════════════════════════════════════════════
-# RESUMO FINAL
-# ════════════════════════════════════════════════════
 echo ""
 echo -e "${BOLD}${GREEN}╔═══════════════════════════════════════════════════════╗${NC}"
 echo -e "${BOLD}${GREEN}║            SETUP CONCLUÍDO COM SUCESSO! 🚀            ║${NC}"
@@ -670,7 +617,7 @@ echo -e "  ✔  PostgreSQL"
 echo -e "  ✔  PGAdmin 4"
 echo ""
 echo -e "${BOLD}  Outros${NC}"
-echo -e "${GREEN}  ✔  ZSH + Oh My Zsh"
+echo -e "${GREEN}  ✔  ZSH + Zinit + Starship (Tema Laranja 🎧)"
 echo -e "  ✔  Git + Chave SSH"
 echo -e "  ✔  Brave Browser Nightly"
 echo -e "  ✔  Discord"
@@ -690,3 +637,7 @@ echo -e "  6. Abra o Docker Desktop para completar a configuração"
 echo -e "  7. Faça logout/login (ou reinicie) para o grupo docker ter efeito"
 echo -e "  8. ${BOLD}REINICIE O SISTEMA!${NC}"
 echo ""
+"""
+with open("setup_fedora.sh", "w") as f:
+    f.write(script_content)
+print("File generated successfully")
