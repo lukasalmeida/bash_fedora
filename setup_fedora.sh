@@ -275,7 +275,7 @@ install_pkg java-latest-openjdk java-latest-openjdk-devel maven
 ok "Java (OpenJDK) + Maven instalados!"
 
 JAVA_BLOCK='
-export JAVA_HOME=$(dirname$(dirname $(readlink -f$(which javac))))
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
 export PATH="$JAVA_HOME/bin:$PATH"'
 
 for RC in "$HOME_DIR/.zshrc" "$HOME_DIR/.bashrc"; do
@@ -510,4 +510,127 @@ CONF_FILE="/etc/nginx/conf.d/${DOMAIN}.conf"
 echo
 echo "Resumo:"
 echo "Domínio: $DOMAIN"
-echo "Destino:
+echo "Destino: http://$IP:$PORT"
+echo
+
+read -p "Confirmar? (s/N): " CONFIRM
+
+if [[ ! "$CONFIRM" =~ ^[Ss]$ ]]; then
+    echo "Operação cancelada."
+    exit 0
+fi
+
+if ! grep -q "$DOMAIN" /etc/hosts; then
+    echo "127.0.0.1 $DOMAIN" | sudo tee -a /etc/hosts >/dev/null
+fi
+
+sudo tee "$CONF_FILE" > /dev/null <<EONGINX
+server {
+    listen 80;
+    server_name $DOMAIN;
+
+    location / {
+        proxy_pass http://$IP:$PORT;
+
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EONGINX
+
+if sudo nginx -t; then
+    sudo systemctl reload nginx
+    echo
+    echo "✓ Domínio criado com sucesso!"
+    echo "http://$DOMAIN"
+else
+    sudo rm -f "$CONF_FILE"
+    echo "Erro na configuração."
+    exit 1
+fi
+EOF
+
+run_root chmod +x "$BIN_DIR/adddominio"
+
+run_root tee "$BIN_DIR/atualizar" > /dev/null << 'EOF'
+#!/bin/bash
+sudo dnf update --refresh -y
+EOF
+
+run_root chmod +x "$BIN_DIR/atualizar"
+
+run_root tee "$BIN_DIR/temp" > /dev/null << 'EOF'
+#!/bin/bash
+
+if [ ! -d "$HOME/Temp" ]; then
+    echo "Pasta ~/Temp não existe."
+    exit 0
+fi
+
+read -p "Deseja limpar a pasta ~/Temp? (s/N): " resposta
+
+if [[ "$resposta" =~ ^[Ss]$ ]]; then
+    cd "$HOME/Temp" || exit 1
+    rm -rf ./*
+    echo "Pasta Temp limpa."
+else
+    echo "Limpeza cancelada."
+fi
+EOF
+
+run_root chmod +x "$BIN_DIR/temp"
+
+ok "Scripts personalizados instalados em /usr/local/bin/!"
+
+echo ""
+echo -e "${BOLD}${GREEN}╔═══════════════════════════════════════════════════════╗${NC}"
+echo -e "${BOLD}${GREEN}║            SETUP CONCLUÍDO COM SUCESSO! 🚀            ║${NC}"
+echo -e "${BOLD}${GREEN}╚═══════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${BOLD}  IDEs${NC}"
+echo -e "${GREEN}  ✔  VS Code"
+echo -e "  ✔  Cursor"
+echo -e "  ✔  JetBrains Toolbox  ${YELLOW}(Abra e instale IntelliJ, PyCharm, DataGrip)${GREEN}"
+echo ""
+echo -e "${BOLD}  Ferramentas Dev${NC}"
+echo -e "${GREEN}  ✔  Postman"
+echo -e "  ✔  Docker Desktop"
+echo -e "  ✔  kubectl"
+echo -e "  ✔  FreeDownloadManager  ${YELLOW}(~/Applications/)${GREEN}"
+echo -e "  ✔  qBittorrent"
+echo -e "  ✔  Draw.io"
+echo -e "  ✔  Steam"
+echo ""
+echo -e "${BOLD}  Linguagens & Runtime${NC}"
+echo -e "${GREEN}  ✔  Node.js LTS via NVM + pnpm, yarn, typescript, ts-node"
+echo -e "  ✔  Java latest (OpenJDK) + Maven"
+echo -e "  ✔  Python 3"
+echo -e "  ✔  PHP + Composer"
+echo -e "  ✔  PostgreSQL"
+echo -e "  ✔  PGAdmin 4"
+echo ""
+echo -e "${BOLD}  Outros${NC}"
+echo -e "${GREEN}  ✔  ZSH + Zinit + Starship (Tema Laranja 🎧)"
+echo -e "  ✔  Git + Chave SSH"
+echo -e "  ✔  Brave Browser Nightly"
+echo -e "  ✔  Discord"
+echo -e "  ✔  VLC + Spotify + OBS + openh264"
+echo -e "  ✔  Nginx"
+echo -e "  ✔  adddominio"
+echo -e "  ✔  atualizar"
+echo -e "  ✔  temp${NC}"
+echo ""
+echo -e "${YELLOW}${BOLD}  PENDÊNCIAS MANUAIS PÓS-INSTALAÇÃO:${NC}"
+echo -e "${YELLOW}  1. [Git/SSH]    Edite a variável SSH_EMAIL no script antes de rodar (ou gere uma nova manualmente)."
+echo -e "  2. [Git]        Configure seu nome no Git: ${NC}git config --global user.name \"Seu Nome\""
+echo -e "${YELLOW}  3. [Git]        Configure seu email no Git: ${NC}git config --global user.email \"seuemail@exemplo.com\""
+echo -e "${YELLOW}  4. [Git/SSH]    Copie e adicione sua chave SSH pública no GitHub/GitLab: ${NC}cat ~/.ssh/id_ed25519.pub"
+echo -e "${YELLOW}  5. [IDEs]       Abra o JetBrains Toolbox no menu de aplicativos e instale o IntelliJ IDEA, PyCharm e DataGrip."
+echo -e "  6. [Docker]     Abra o Docker Desktop uma vez para aceitar os termos de serviço e completar a configuração."
+echo -e "  7. [Banco]      Acesse o PostgreSQL para definir uma senha: ${NC}sudo -u postgres psql ${YELLOW}(depois digite \\password e saia com \\q)"
+echo -e "${YELLOW}  8. [Banco]      Abra o PGAdmin 4 e configure a conexão inicial com o servidor PostgreSQL local."
+echo -e "  9. [Contas]     Faça login em suas ferramentas (VS Code, Cursor, Discord, Spotify, Steam, Navegadores)."
+echo -e " 10. [Sistema]    ${BOLD}REINICIE O SISTEMA${YELLOW} para que as fontes, ZSH, NVM e as permissões de grupo (Docker) entrem em vigor por completo!${NC}"
+echo ""
