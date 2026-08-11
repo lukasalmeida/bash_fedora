@@ -1,16 +1,16 @@
-script_content = """#!/bin/bash
+#!/bin/bash
 
 set -eo pipefail
 
-RED='\\033[0;31m'
-GREEN='\\033[0;32m'
-YELLOW='\\033[1;33m'
-CYAN='\\033[0;36m'
-PURPLE='\\033[0;35m'
-BOLD='\\033[1m'
-NC='\\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+PURPLE='\033[0;35m'
+BOLD='\033[1m'
+NC='\033[0m'
 
-section() { echo -e "\\n${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; echo -e "${PURPLE}${BOLD}  $1${NC}"; echo -e "${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; }
+section() { echo -e "\n${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; echo -e "${PURPLE}${BOLD}  $1${NC}"; echo -e "${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; }
 ok()      { echo -e "  ${GREEN}✔  $1${NC}"; }
 info()    { echo -e "  ${CYAN}→  $1${NC}"; }
 warn()    { echo -e "  ${YELLOW}⚠  $1${NC}"; }
@@ -47,9 +47,9 @@ HOME_DIR="$HOME"
 APPS_DIR="$HOME/Applications"
 mkdir -p "$APPS_DIR"
 
-echo -e "\\n${BOLD}${CYAN}  Usuário: $REAL_USER${NC}"
+echo -e "\n${BOLD}${CYAN}  Usuário: $REAL_USER${NC}"
 echo -e "${BOLD}${CYAN}  Home:    $HOME_DIR${NC}"
-echo -e "${BOLD}${CYAN}  Apps:    $APPS_DIR${NC}\\n"
+echo -e "${BOLD}${CYAN}  Apps:    $APPS_DIR${NC}\n"
 
 section "1/16 — Sistema + Repositórios"
 
@@ -157,24 +157,24 @@ EOF
 
 mkdir -p "$HOME_DIR/.config"
 cat << 'EOF' > "$HOME_DIR/.config/starship.toml"
-format = \"\"\"
-[░▒▓](#ff8c00)\\
-$os\\
-$username\\
-[](bg:#fe8019 fg:#ff8c00)\\
-$directory\\
-[](fg:#fe8019 bg:#fabd2f)\\
-$git_branch\\
-$git_status\\
-[](fg:#fabd2f bg:#3c3836)\\
-$c\\
-$rust\\
-$golang\\
-$nodejs\\
-$php\\
-$java\\
-$python\\
-[](fg:#3c3836) $character\"\"\"
+format = """
+[░▒▓](#ff8c00)\
+$os\
+$username\
+[](bg:#fe8019 fg:#ff8c00)\
+$directory\
+[](fg:#fe8019 bg:#fabd2f)\
+$git_branch\
+$git_status\
+[](fg:#fabd2f bg:#3c3836)\
+$c\
+$rust\
+$golang\
+$nodejs\
+$php\
+$java\
+$python\
+[](fg:#3c3836) $character"""
 
 [os]
 disabled = false
@@ -275,7 +275,7 @@ install_pkg java-latest-openjdk java-latest-openjdk-devel maven
 ok "Java (OpenJDK) + Maven instalados!"
 
 JAVA_BLOCK='
-export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
+export JAVA_HOME=$(dirname$(dirname $(readlink -f$(which javac))))
 export PATH="$JAVA_HOME/bin:$PATH"'
 
 for RC in "$HOME_DIR/.zshrc" "$HOME_DIR/.bashrc"; do
@@ -425,10 +425,6 @@ info "Instalando Postman..."
 install_flatpak com.getpostman.Postman
 ok "Postman instalado!"
 
-info "Instalando DataGrip (Flatpak)..."
-install_flatpak com.jetbrains.DataGrip
-ok "DataGrip instalado!"
-
 run_root tee "/usr/share/applications/freedownloadmanager.desktop" > /dev/null << EOF
 [Desktop Entry]
 Name=Free Download Manager
@@ -514,130 +510,4 @@ CONF_FILE="/etc/nginx/conf.d/${DOMAIN}.conf"
 echo
 echo "Resumo:"
 echo "Domínio: $DOMAIN"
-echo "Destino: http://$IP:$PORT"
-echo
-
-read -p "Confirmar? (s/N): " CONFIRM
-
-if [[ ! "$CONFIRM" =~ ^[Ss]$ ]]; then
-    echo "Operação cancelada."
-    exit 0
-fi
-
-if ! grep -q "$DOMAIN" /etc/hosts; then
-    echo "127.0.0.1 $DOMAIN" | sudo tee -a /etc/hosts >/dev/null
-fi
-
-sudo tee "$CONF_FILE" > /dev/null <<EONGINX
-server {
-    listen 80;
-    server_name $DOMAIN;
-
-    location / {
-        proxy_pass http://$IP:$PORT;
-
-        proxy_set_header Host \\$host;
-        proxy_set_header X-Real-IP \\$remote_addr;
-        proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \\$scheme;
-    }
-}
-EONGINX
-
-if sudo nginx -t; then
-    sudo systemctl reload nginx
-    echo
-    echo "✓ Domínio criado com sucesso!"
-    echo "http://$DOMAIN"
-else
-    sudo rm -f "$CONF_FILE"
-    echo "Erro na configuração."
-    exit 1
-fi
-EOF
-
-run_root chmod +x "$BIN_DIR/adddominio"
-
-run_root tee "$BIN_DIR/atualizar" > /dev/null << 'EOF'
-#!/bin/bash
-sudo dnf update --refresh -y
-EOF
-
-run_root chmod +x "$BIN_DIR/atualizar"
-
-run_root tee "$BIN_DIR/temp" > /dev/null << 'EOF'
-#!/bin/bash
-
-if [ ! -d "$HOME/Temp" ]; then
-    echo "Pasta ~/Temp não existe."
-    exit 0
-fi
-
-read -p "Deseja limpar a pasta ~/Temp? (s/N): " resposta
-
-if [[ "$resposta" =~ ^[Ss]$ ]]; then
-    cd "$HOME/Temp" || exit 1
-    rm -rf ./*
-    echo "Pasta Temp limpa."
-else
-    echo "Limpeza cancelada."
-fi
-EOF
-
-run_root chmod +x "$BIN_DIR/temp"
-
-ok "Scripts personalizados instalados em /usr/local/bin/!"
-
-echo ""
-echo -e "${BOLD}${GREEN}╔═══════════════════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}${GREEN}║            SETUP CONCLUÍDO COM SUCESSO! 🚀            ║${NC}"
-echo -e "${BOLD}${GREEN}╚═══════════════════════════════════════════════════════╝${NC}"
-echo ""
-echo -e "${BOLD}  IDEs${NC}"
-echo -e "${GREEN}  ✔  VS Code"
-echo -e "  ✔  Cursor"
-echo -e "  ✔  JetBrains Toolbox  ${YELLOW}(abra e instale IntelliJ, PyCharm)${GREEN}"
-echo -e "  ✔  DataGrip (Flatpak)"
-echo ""
-echo -e "${BOLD}  Ferramentas Dev${NC}"
-echo -e "${GREEN}  ✔  Postman"
-echo -e "  ✔  Docker Desktop"
-echo -e "  ✔  kubectl"
-echo -e "  ✔  FreeDownloadManager  ${YELLOW}(~/Applications/)${GREEN}"
-echo -e "  ✔  qBittorrent"
-echo -e "  ✔  Draw.io"
-echo -e "  ✔  Steam"
-echo ""
-echo -e "${BOLD}  Linguagens & Runtime${NC}"
-echo -e "${GREEN}  ✔  Node.js LTS via NVM + pnpm, yarn, typescript, ts-node"
-echo -e "  ✔  Java latest (OpenJDK) + Maven"
-echo -e "  ✔  Python 3"
-echo -e "  ✔  PHP + Composer"
-echo -e "  ✔  PostgreSQL"
-echo -e "  ✔  PGAdmin 4"
-echo ""
-echo -e "${BOLD}  Outros${NC}"
-echo -e "${GREEN}  ✔  ZSH + Zinit + Starship (Tema Laranja 🎧)"
-echo -e "  ✔  Git + Chave SSH"
-echo -e "  ✔  Brave Browser Nightly"
-echo -e "  ✔  Discord"
-echo -e "  ✔  VLC + Spotify + OBS + openh264"
-echo -e "  ✔  Nginx"
-echo -e "  ✔  adddominio"
-echo -e "  ✔  atualizar"
-echo -e "  ✔  temp${NC}"
-echo ""
-echo -e "${YELLOW}${BOLD}  PENDÊNCIAS MANUAIS:${NC}"
-echo -e "${YELLOW}  1. Edite SSH_EMAIL no script antes de rodar (ou rode novamente após editar)"
-echo -e "  2. git config --global user.name \"Lucas\""
-echo -e "  3. git config --global user.email \"seuemail@gmail.com\""
-echo -e "  4. Adicione ~/.ssh/id_ed25519.pub no GitHub"
-echo -e "  5. Abra o JetBrains Toolbox e instale IntelliJ + PyCharm"
-echo -e "  6. Abra o Docker Desktop para completar a configuração"
-echo -e "  7. Faça logout/login (ou reinicie) para o grupo docker ter efeito"
-echo -e "  8. ${BOLD}REINICIE O SISTEMA!${NC}"
-echo ""
-"""
-with open("setup_fedora.sh", "w") as f:
-    f.write(script_content)
-print("File generated successfully")
+echo "Destino:
