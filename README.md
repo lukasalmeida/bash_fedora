@@ -14,11 +14,11 @@ git clone https://github.com/lukasalmeida/bash_fedora.git
 
 cd bash_fedora
 
-# Edite seu email SSH no script
-nano setup-fedora.sh
+# Ajuste seu email SSH no script (variável SSH_EMAIL) se desejar
+nano setup_fedora.sh
 
-# Execute como root
-sudo bash setup-fedora.sh
+# Execute como usuário normal (o script solicitará sudo quando necessário)
+bash setup_fedora.sh
 ```
 
 > Tempo estimado: **20–40 minutos**, dependendo da velocidade da internet.
@@ -217,7 +217,7 @@ temp
 
 ```text
 bash_fedora/
-├── setup-fedora.sh
+├── setup_fedora.sh
 └── README.md
 ```
 
@@ -245,7 +245,7 @@ git config --global user.email "seuemail@gmail.com"
 
 # 📝 Observações
 
-* O script utiliza `set -e`, interrompendo a execução ao primeiro erro.
+* O script utiliza `set -eo pipefail`, interrompendo a execução ao primeiro erro e propagando falhas em pipelines.
 * Free Download Manager é instalado em:
 
 ```bash
