@@ -388,19 +388,19 @@ if [ -f /usr/local/bin/jetbrains-toolbox ]; then
 else
     TOOLBOX_URL=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" | python3 -c "import sys, json; data = json.load(sys.stdin); print(data['TBA'][0]['downloads']['linux']['link'])" 2>/dev/null) || true
     if [ -n "$TOOLBOX_URL" ]; then
-        if curl -Lo /tmp/jetbrains-toolbox.tar.gz "$TOOLBOX_URL"; then
-            if tar -xzf /tmp/jetbrains-toolbox.tar.gz -C /tmp/ 2>/dev/null; then
-                TOOLBOX_BIN=$(find /tmp -name "jetbrains-toolbox" -type f 2>/dev/null | head -1)
-                if [ -n "$TOOLBOX_BIN" ]; then
-                    run_root install -m 755 "$TOOLBOX_BIN" /usr/local/bin/jetbrains-toolbox || warn "Falha ao mover binário do JetBrains Toolbox."
+        if curl -Lo /tmp/toolbox.tar.gz "$TOOLBOX_URL"; then
+            mkdir -p /tmp/toolbox_extracted
+            if tar -xzf /tmp/toolbox.tar.gz -C /tmp/toolbox_extracted --strip-components=1 2>/dev/null; then
+                if [ -f "/tmp/toolbox_extracted/jetbrains-toolbox" ]; then
+                    run_root install -m 755 /tmp/toolbox_extracted/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox || warn "Falha ao mover binário do JetBrains Toolbox."
                     ok "JetBrains Toolbox instalado!"
                 else
-                    warn "Binário do JetBrains Toolbox não encontrado após extração."
+                    warn "Binário não encontrado após extração."
                 fi
             else
-                warn "Falha ao extrair JetBrains Toolbox."
+                warn "Falha ao extrair pacote do JetBrains Toolbox."
             fi
-            rm -rf /tmp/jetbrains-toolbox* || true
+            rm -rf /tmp/toolbox* || true
         else
             warn "Falha no download do JetBrains Toolbox."
         fi
