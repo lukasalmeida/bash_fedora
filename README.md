@@ -23,6 +23,12 @@ bash setup_fedora.sh
 
 > Tempo estimado: **20–40 minutos**, dependendo da velocidade da internet.
 
+## Arquitetura das etapas
+
+`setup_fedora.sh` funciona como orquestrador e executa, em ordem alfabética, todos os módulos `.sh` do diretório `scripts/`. Cada módulo deve declarar uma função `run_stage`.
+
+Para adicionar ou remover funcionalidades, crie ou remova um módulo seguindo o padrão `NN-verbo-substantivo.sh`, por exemplo `13-instalar-ferramenta.sh`. Se uma etapa falhar, o erro é registrado e o orquestrador continua para o próximo módulo.
+
 ---
 
 # 📦 O que é instalado
