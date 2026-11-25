@@ -22,16 +22,6 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
     fi
 
-    if [[ ! -f /etc/yum.repos.d/cursor.repo ]]; then
-        run_root tee /etc/yum.repos.d/cursor.repo >/dev/null <<'EOF'
-[cursor]
-name=Cursor
-baseurl=https://download.todesktop.com/230313mzl4w4u92/rpm
-enabled=1
-gpgcheck=0
-EOF
-    fi
-
     if [[ ! -f /etc/yum.repos.d/docker-ce.repo ]]; then
         run_root dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
     fi
