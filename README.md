@@ -35,14 +35,12 @@ Para adicionar ou remover funcionalidades, crie ou remova um módulo seguindo o 
 
 ## 🖥️ IDEs & Editores
 
-| Aplicação         | Método                        |
-| ----------------- | ----------------------------- |
-| VS Code           | Repositório oficial Microsoft |
-| Cursor            | Repositório oficial           |
-| JetBrains Toolbox | Download oficial              |
-| IntelliJ IDEA     | Via Toolbox                   |
-| PyCharm           | Via Toolbox                   |
-| DataGrip          | Flatpak                       |
+| Aplicação               | Método                        |
+| ----------------------- | ----------------------------- |
+| VS Code                 | Repositório oficial Microsoft |
+| Cursor                  | Repositório oficial           |
+| IntelliJ IDEA Community | Flatpak (Flathub)             |
+| PyCharm Community       | Flatpak (Flathub)             |
 
 ---
 
@@ -241,9 +239,6 @@ git config --global user.name "Lucas"
 git config --global user.email "seuemail@gmail.com"
 ```
 
-* [ ] Abrir o JetBrains Toolbox
-* [ ] Instalar IntelliJ IDEA
-* [ ] Instalar PyCharm
 * [ ] Abrir o Docker Desktop pela primeira vez
 * [ ] Reiniciar o sistema
 
