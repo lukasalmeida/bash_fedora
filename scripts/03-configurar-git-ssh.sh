@@ -12,7 +12,14 @@ run_stage() {
     mkdir -p "$HOME_DIR/.ssh"
     chmod 700 "$HOME_DIR/.ssh"
     if [[ ! -f "$ssh_key" ]]; then
-        ssh-keygen -t ed25519 -C "seuemail@gmail.com" -f "$ssh_key" -N ""
+        local ssh_email=""
+        while [[ -z "$ssh_email" ]]; do
+            read -p "E-mail para a chave SSH: " ssh_email
+            if [[ -z "$ssh_email" ]]; then
+                warn "Informe um e-mail para continuar."
+            fi
+        done
+        ssh-keygen -t ed25519 -C "$ssh_email" -f "$ssh_key" -N ""
         ok "Chave SSH gerada"
         cat "$ssh_key.pub"
     else
