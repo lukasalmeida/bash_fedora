@@ -31,7 +31,7 @@ Fedora workstation provisioning (Portuguese-language repo). No build, test, lint
 
 ## README caveats (verified against code)
 
-- There is no `SSH_EMAIL` variable; the SSH comment is hardcoded as `seuemail@gmail.com` in `scripts/03-configurar-git-ssh.sh`.
+- There is no `SSH_EMAIL` variable; `scripts/03-configurar-git-ssh.sh` prompts for the e-mail interactively (only when the key does not exist yet) and uses it as the SSH key comment.
 - README's structure section omits `scripts/` entirely.
 
 ## Git

@@ -14,10 +14,8 @@ git clone https://github.com/lukasalmeida/bash_fedora.git
 
 cd bash_fedora
 
-# Ajuste seu email SSH no script (variável SSH_EMAIL) se desejar
-nano setup_fedora.sh
-
 # Execute como usuário normal (o script solicitará sudo quando necessário)
+# Na etapa de Git/SSH, informe o e-mail que será usado como comentário da chave
 bash setup_fedora.sh
 ```
 
