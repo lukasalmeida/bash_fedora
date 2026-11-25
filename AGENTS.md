@@ -50,7 +50,8 @@ Fedora workstation provisioning (Portuguese-language repo). No build, test, lint
 ## Git
 
 - Base development branch is `dev` (tracks `origin/dev`).
-- All modifications originate from an issue. Create a dedicated branch from `dev` using `<type>/<issue-number>-<description-up-to-5-words>` in kebab-case (e.g., `feat/14-adicionar-instalacao-docker`, `fix/22-corrigir-permissao-zshrc`).
-- Format commit messages as `<type>/<change-description>` (e.g., `feat/adicionar modulo de instalacao docker`, `fix/proteger append no zshrc`).
+- Always write branch names, commit messages, and Pull Request titles and descriptions in English.
+- All modifications originate from an issue. Create a dedicated branch from `dev` using `<type>/<issue-number>-<description-up-to-5-words>` in kebab-case (e.g., `feat/14-add-docker-installation`, `fix/22-fix-zshrc-permissions`).
+- Format commit messages as `<type>/<change-description>` (e.g., `feat/add docker installation module`, `fix/guard zshrc append`).
 - Split commits by necessity and single responsibility — never bundle unrelated changes into a single commit when they can be isolated cleanly.
 - You are allowed to push the feature/fix branch to `origin` and open a Pull Request targeting `dev` (referencing the origin issue, e.g., `Closes #<issue-number>`). Leave the PR open for manual review and approval — never merge it yourself.
