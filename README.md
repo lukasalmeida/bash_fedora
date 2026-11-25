@@ -140,7 +140,7 @@ sudo systemctl status nginx
 | ---------- | ------------------------ |
 | ZSH        | Shell padrão             |
 | Oh My Zsh  | Framework ZSH            |
-| htop       | Monitor de processos     |
+| btop       | Monitor de processos     |
 | neofetch   | Informações do sistema   |
 | bat        | Cat com syntax highlight |
 | tree       | Estrutura de diretórios  |

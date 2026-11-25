@@ -3,7 +3,7 @@
 run_stage() {
     section "2/12 — Ferramentas de terminal"
     run_root dnf copr enable -y atim/starship
-    local packages="zsh htop tree fzf bat ripgrep jq starship"
+    local packages="zsh btop tree fzf bat ripgrep jq starship"
     if dnf info fastfetch >/dev/null 2>&1; then
         packages="$packages fastfetch"
     else
