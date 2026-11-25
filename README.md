@@ -36,7 +36,6 @@ Para adicionar ou remover funcionalidades, crie ou remova um módulo seguindo o 
 | Aplicação               | Método                        |
 | ----------------------- | ----------------------------- |
 | VS Code                 | Repositório oficial Microsoft |
-| Cursor                  | Repositório oficial           |
 | IntelliJ IDEA Community | Flatpak (Flathub)             |
 | PyCharm Community       | Flatpak (Flathub)             |
 
@@ -156,7 +155,6 @@ sudo systemctl status nginx
 
 * Brave Browser Nightly
 * Visual Studio Code
-* Cursor
 * Docker
 * Kubernetes
 * Flathub
@@ -253,7 +251,6 @@ git config --global user.email "seuemail@gmail.com"
 ~/Applications
 ```
 
-* Cursor possui fallback automático para AppImage caso o repositório falhe.
 * VLC tenta instalação via DNF e utiliza Flatpak como alternativa.
 * PostgreSQL é iniciado automaticamente após a instalação.
 * Nginx é iniciado automaticamente após a instalação.
