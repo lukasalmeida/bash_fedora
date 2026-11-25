@@ -6,6 +6,19 @@ Fedora workstation provisioning (Portuguese-language repo). No build, test, lint
 
 - Always respond to the user in Brazilian Portuguese (`pt-BR`).
 
+## Token & Context Optimization
+
+- Delegate broad repository scans and searches to subagents (`task` / `@explore`) instead of running multiple `glob`, `grep`, or `read` calls in the main session.
+- When files are referenced with `@`, read and edit them directly without scanning unrelated directories.
+- For files exceeding 200 lines, read only the target section using `offset` and `limit`.
+- Never read `node_modules/`, `dist/`, `build/`, `.next/`, `.git/`, or lockfiles.
+- Limit verbose `bash` outputs using `| tail -n 30` or silent flags (`--silent`).
+
+## Code Style
+
+- Write clean, self-explanatory code with zero inline or block comments.
+- Keep edits focused with minimal diffs.
+
 ## Architecture
 
 - `setup_fedora.sh` is an orchestrator: it `source`s every `scripts/*.sh` in glob (numeric) order and calls a `run_stage` function from each module. It does **not** execute modules as separate processes.
@@ -31,7 +44,7 @@ Fedora workstation provisioning (Portuguese-language repo). No build, test, lint
 
 ## README caveats (verified against code)
 
-- There is no `SSH_EMAIL` variable; `scripts/03-configurar-git-ssh.sh` prompts for the e-mail interactively (only when the key does not exist yet) and uses it as the SSH key comment.
+- There is no `SSH_EMAIL` variable; the SSH comment is hardcoded as `seuemail@gmail.com` in `scripts/03-configurar-git-ssh.sh`.
 - README's structure section omits `scripts/` entirely.
 
 ## Git
