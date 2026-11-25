@@ -48,6 +48,8 @@ Para adicionar ou remover funcionalidades, crie ou remova um módulo seguindo o 
 | --------------------- | ---------------------- |
 | Docker Desktop        | RPM oficial            |
 | kubectl               | Repositório Kubernetes |
+| OpenCode              | npm global             |
+| GitHub Copilot CLI    | npm global             |
 | Postman               | Flatpak                |
 | Draw.io               | Flatpak                |
 | Free Download Manager | AppImage               |
