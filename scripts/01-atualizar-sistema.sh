@@ -2,7 +2,11 @@
 
 run_stage() {
     section "1/12 — Sistema e repositórios"
-    run_root dnf update -y --quiet
+    if compgen -G "/var/lib/dnf/offline/packages/*" >/dev/null; then
+        warn "Transação offline do DNF pendente detectada; atualização do sistema ignorada para não invalidá-la."
+    else
+        run_root dnf update -y --quiet
+    fi
     install_pkg dnf-plugins-core curl wget unzip zip tar make gcc gcc-c++ openssl openssl-devel fuse fuse-libs
 
     if ! rpm -q openssl3-libs >/dev/null 2>&1; then
