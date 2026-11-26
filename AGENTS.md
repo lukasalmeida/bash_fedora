@@ -23,7 +23,7 @@ Fedora workstation provisioning (Portuguese-language repo). No build, test, lint
 
 - `setup_fedora.sh` is an orchestrator: it `source`s every `scripts/*.sh` in glob (numeric) order and calls a `run_stage` function from each module. It does **not** execute modules as separate processes.
 - Modules are sourced, so they inherit orchestrator-provided helpers: `section`, `ok`, `info`, `warn`, `err`, `run_root`, `install_pkg`, `install_flatpak`. Running a module standalone fails — verify syntax instead: `bash -n scripts/*.sh setup_fedora.sh` (no shellcheck config; use it only if installed).
-- `scripts/00-validar-prerequisitos.sh` sets shared state used by later modules: `REAL_USER`, `HOME_DIR`, `APPS_DIR`. Keep it as `00-`; modules `02`–`09` depend on those variables.
+- `scripts/00-validar-prerequisitos.sh` is the preflight and sets shared state used by later modules: `REAL_USER`, `HOME_DIR`, `APPS_DIR`, `SSH_KEY_PATH`, `SSH_EMAIL`. It collects every input the setup needs (sudo, and the SSH e-mail only when `~/.ssh/id_ed25519` is missing) before any system change, and renews the sudo credential until the run ends. Keep it as `00-`; modules `02`–`09` depend on those variables.
 
 ## Module contract
 
