@@ -40,18 +40,18 @@ run_stage() {
     for device in "${luks_devices[@]}"; do
         clevis_bindings="$(clevis luks list -d "$device" 2>/dev/null || true)"
         if [[ -n "${clevis_bindings//[[:space:]]/}" ]]; then
-            ok "Binding Clevis encontrado em $device."
+            ok "Associação Clevis encontrada em $device."
             if grep -Eiq '(^|[^[:alnum:]_])tpm2([^[:alnum:]_]|$)' <<< "$clevis_bindings"; then
                 has_tpm_binding=1
             fi
         else
-            info "Nenhum binding Clevis encontrado em $device."
+            info "Nenhuma associação Clevis encontrada em $device."
         fi
     done
 
     if (( has_tpm_binding == 1 )); then
         ok "TPM2/Clevis configurado para desbloqueio automático."
     else
-        warn "Não foi identificado binding TPM2/Clevis. Nenhuma configuração foi alterada."
+        warn "Não foi identificada associação TPM2/Clevis. Nenhuma configuração foi alterada."
     fi
 }

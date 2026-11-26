@@ -12,5 +12,5 @@ run_stage() {
     fi
     run_root groupadd -f docker
     run_root usermod -aG docker "$REAL_USER"
-    warn "Faça logout/login para aplicar o grupo docker"
+    warn "Faça logoff e login novamente para aplicar o grupo docker"
 }
