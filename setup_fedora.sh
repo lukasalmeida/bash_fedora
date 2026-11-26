@@ -12,6 +12,10 @@ PURPLE='\033[0;35m'
 BOLD='\033[1m'
 NC='\033[0m'
 
+VERSION='1.1.0'
+
+echo -e "${BOLD}Fedora Setup v${VERSION}${NC}"
+
 section() { echo -e "\n${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; echo -e "${PURPLE}${BOLD}  $1${NC}"; echo -e "${PURPLE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; }
 ok() { echo -e "  ${GREEN}✔  $1${NC}"; }
 info() { echo -e "  ${CYAN}→  $1${NC}"; }
