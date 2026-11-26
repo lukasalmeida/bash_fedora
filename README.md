@@ -14,8 +14,9 @@ git clone https://github.com/lukasalmeida/bash_fedora.git
 
 cd bash_fedora
 
-# Execute como usuário normal (o script solicitará sudo quando necessário)
-# Na etapa de Git/SSH, informe o e-mail que será usado como comentário da chave
+# Execute como usuário normal
+# O preflight pede sudo e todos os dados necessários antes de qualquer alteração,
+# como o e-mail da chave SSH (solicitado só se ainda não existir chave)
 bash setup_fedora.sh
 ```
 
@@ -24,6 +25,8 @@ bash setup_fedora.sh
 ## Arquitetura das etapas
 
 `setup_fedora.sh` funciona como orquestrador e executa, em ordem alfabética, todos os módulos `.sh` do diretório `scripts/`. Cada módulo deve declarar uma função `run_stage`.
+
+A primeira etapa é um preflight: ela valida os pré-requisitos e coleta de uma só vez todas as entradas necessárias (sudo e, quando aplicável, o e-mail da chave SSH) antes de qualquer alteração no sistema. As etapas seguintes consomem esses valores e não pedem mais nada durante a execução.
 
 Para adicionar ou remover funcionalidades, crie ou remova um módulo seguindo o padrão `NN-verbo-substantivo.sh`, por exemplo `13-instalar-ferramenta.sh`. Se uma etapa falhar, o erro é registrado e o orquestrador continua para o próximo módulo.
 

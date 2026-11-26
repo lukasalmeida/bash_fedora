@@ -8,21 +8,22 @@ run_stage() {
     git config --global pull.rebase false
     git config --global core.autocrlf input
 
-    local ssh_key="$HOME_DIR/.ssh/id_ed25519"
+    local ssh_key="${SSH_KEY_PATH:-$HOME_DIR/.ssh/id_ed25519}"
     mkdir -p "$HOME_DIR/.ssh"
     chmod 700 "$HOME_DIR/.ssh"
-    if [[ ! -f "$ssh_key" ]]; then
-        local ssh_email=""
-        while [[ -z "$ssh_email" ]]; do
-            read -p "E-mail para a chave SSH: " ssh_email
-            if [[ -z "$ssh_email" ]]; then
-                warn "Informe um e-mail para continuar."
-            fi
-        done
-        ssh-keygen -t ed25519 -C "$ssh_email" -f "$ssh_key" -N ""
-        ok "Chave SSH gerada"
-        cat "$ssh_key.pub"
-    else
-        warn "Chave SSH já existe, pulando"
+
+    if [[ -f "$ssh_key" ]]; then
+        info "Chave SSH já existente em $ssh_key. Geração pulada e chave atual mantida."
+        return 0
     fi
+
+    if [[ -z "${SSH_EMAIL:-}" ]]; then
+        err "E-mail da chave SSH indisponível no preflight; geração da chave pulada."
+        err "Gere a chave manualmente com: ssh-keygen -t ed25519 -C \"seuemail@exemplo.com\" -f $ssh_key"
+        return 1
+    fi
+
+    ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$ssh_key" -N ""
+    ok "Chave SSH gerada com o e-mail coletado no preflight"
+    cat "$ssh_key.pub"
 }
