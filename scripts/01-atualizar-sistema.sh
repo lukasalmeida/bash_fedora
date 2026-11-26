@@ -5,6 +5,10 @@ run_stage() {
     run_root dnf update -y --quiet
     install_pkg dnf-plugins-core curl wget unzip zip tar make gcc gcc-c++ openssl openssl-devel fuse fuse-libs
 
+    if ! rpm -q openssl3-libs >/dev/null 2>&1; then
+        install_pkg openssl3-libs
+    fi
+
     if [[ ! -f /etc/yum.repos.d/brave-browser-nightly.repo ]]; then
         run_root dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-nightly.s3.brave.com/brave-browser-nightly.repo
     fi
