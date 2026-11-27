@@ -14,14 +14,21 @@ git clone https://github.com/lukasalmeida/bash_fedora.git
 
 cd bash_fedora
 
-# Ajuste seu email SSH no script (variável SSH_EMAIL) se desejar
-nano setup_fedora.sh
-
-# Execute como usuário normal (o script solicitará sudo quando necessário)
+# Execute como usuário normal
+# O preflight pede sudo e todos os dados necessários antes de qualquer alteração,
+# como o e-mail da chave SSH (solicitado só se ainda não existir chave)
 bash setup_fedora.sh
 ```
 
 > Tempo estimado: **20–40 minutos**, dependendo da velocidade da internet.
+
+## Arquitetura das etapas
+
+`setup_fedora.sh` funciona como orquestrador e executa, em ordem alfabética, todos os módulos `.sh` do diretório `scripts/`. Cada módulo deve declarar uma função `run_stage`.
+
+A primeira etapa é um preflight: ela valida os pré-requisitos e coleta de uma só vez todas as entradas necessárias (sudo e, quando aplicável, o e-mail da chave SSH) antes de qualquer alteração no sistema. As etapas seguintes consomem esses valores e não pedem mais nada durante a execução.
+
+Para adicionar ou remover funcionalidades, crie ou remova um módulo seguindo o padrão `NN-verbo-substantivo.sh`, por exemplo `13-instalar-ferramenta.sh`. Se uma etapa falhar, o erro é registrado e o orquestrador continua para o próximo módulo.
 
 ---
 
@@ -29,14 +36,11 @@ bash setup_fedora.sh
 
 ## 🖥️ IDEs & Editores
 
-| Aplicação         | Método                        |
-| ----------------- | ----------------------------- |
-| VS Code           | Repositório oficial Microsoft |
-| Cursor            | Repositório oficial           |
-| JetBrains Toolbox | Download oficial              |
-| IntelliJ IDEA     | Via Toolbox                   |
-| PyCharm           | Via Toolbox                   |
-| DataGrip          | Flatpak                       |
+| Aplicação               | Método                        |
+| ----------------------- | ----------------------------- |
+| VS Code                 | Repositório oficial Microsoft |
+| IntelliJ IDEA Community | Flatpak (Flathub)             |
+| PyCharm Community       | Flatpak (Flathub)             |
 
 ---
 
@@ -46,6 +50,8 @@ bash setup_fedora.sh
 | --------------------- | ---------------------- |
 | Docker Desktop        | RPM oficial            |
 | kubectl               | Repositório Kubernetes |
+| OpenCode              | npm global             |
+| GitHub Copilot CLI    | npm global             |
 | Postman               | Flatpak                |
 | Draw.io               | Flatpak                |
 | Free Download Manager | AppImage               |
@@ -138,7 +144,7 @@ sudo systemctl status nginx
 | ---------- | ------------------------ |
 | ZSH        | Shell padrão             |
 | Oh My Zsh  | Framework ZSH            |
-| htop       | Monitor de processos     |
+| btop       | Monitor de processos     |
 | neofetch   | Informações do sistema   |
 | bat        | Cat com syntax highlight |
 | tree       | Estrutura de diretórios  |
@@ -152,7 +158,6 @@ sudo systemctl status nginx
 
 * Brave Browser Nightly
 * Visual Studio Code
-* Cursor
 * Docker
 * Kubernetes
 * Flathub
@@ -235,9 +240,6 @@ git config --global user.name "Lucas"
 git config --global user.email "seuemail@gmail.com"
 ```
 
-* [ ] Abrir o JetBrains Toolbox
-* [ ] Instalar IntelliJ IDEA
-* [ ] Instalar PyCharm
 * [ ] Abrir o Docker Desktop pela primeira vez
 * [ ] Reiniciar o sistema
 
@@ -252,7 +254,6 @@ git config --global user.email "seuemail@gmail.com"
 ~/Applications
 ```
 
-* Cursor possui fallback automático para AppImage caso o repositório falhe.
 * VLC tenta instalação via DNF e utiliza Flatpak como alternativa.
 * PostgreSQL é iniciado automaticamente após a instalação.
 * Nginx é iniciado automaticamente após a instalação.
