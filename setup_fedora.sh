@@ -28,6 +28,7 @@ install_flatpak() { flatpak install -y flathub "$1"; }
 
 FAILED_STAGES=0
 FAILED_COMMANDS=0
+MANUAL_DNF_COMMAND=""
 
 trap 'FAILED_COMMANDS=$((FAILED_COMMANDS + 1)); warn "Falha na linha $LINENO. Continuando."' ERR
 
@@ -60,6 +61,12 @@ for module in "$MODULE_DIR"/*.sh; do
 done
 
 section "Resumo"
+if [[ -n "$MANUAL_DNF_COMMAND" ]]; then
+    warn "Ação manual necessária:"
+    info "Execute o seguinte comando para concluir a transação offline do DNF:"
+    echo -e "  ${BOLD}$MANUAL_DNF_COMMAND${NC}"
+    echo
+fi
 if (( FAILED_STAGES == 0 && FAILED_COMMANDS == 0 )); then
     ok "Todas as etapas foram executadas sem falhas detectadas."
 else
